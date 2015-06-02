@@ -3,11 +3,11 @@
 # ----------------------- #
 
 url: http://yoursite.com
-title: My Octopress Blog
-subtitle: A blogging framework for hackers.
-author: Your Name
+title: WBM Blog
+subtitle: code and learn
+author: Walter Beller-Morales
 simple_search: https://www.google.com/search
-description:
+description: thoughts on law - engineering - and business 
 
 # Default date format is "ordinal" (resulting in "July 22nd 2007")
 # You can customize the format as defined in
