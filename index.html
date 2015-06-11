@@ -123,7 +123,26 @@
 
 <p>So we know Ruby is somehow converting the “plus symbol” into a complete block when <code>:+</code> is passed as an argument.</p>
 
-<p>Usually the argument for a <code>.reduce</code> method sets the initial value for the sum. For example <code>.reduce(11)</code> would start the sum from 11. However, a close reading of the Ruby Docs — all of Ruby’s juicy secrets are in the documentation — reveals that the <code>.reduce</code> method also accepts <em>symbols</em> as arguments. When a symbol is passed as an argument then “each element in the collection will be passed to the named method.”[1] For our purposes the named method for the <code>:+</code> symbol is naturally the <code>.+</code> method.</p>
+<p>Usually the argument for a <code>.reduce</code> method sets the initial value for the sum. For example <code>.reduce(11)</code> would start the sum from 11. However, a close reading of the Ruby Docs — all of Ruby’s juicy secrets are in the documentation — reveals that the <code>.reduce</code> method also accepts <em>symbols</em> as arguments.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">reduce</span><span class="p">(</span><span class="n">starting_value_or_symbol</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">case</span> <span class="n">starting_value_or_symbol</span>
+</span><span class='line'>  <span class="k">when</span> <span class="no">Symbol</span>
+</span><span class='line'>    <span class="c1"># convert symbol into a method block</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="c1"># regular reduce() process</span>
+</span><span class='line'>  <span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>When a symbol is passed as an argument then “each element in the collection will be passed to the named method.”[1] For our purposes the named method for the <code>:+</code> symbol is naturally the <code>.+</code> method.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="mi">11</span><span class="o">.</span><span class="n">+</span><span class="p">(</span><span class="mi">17</span><span class="p">)</span> <span class="c1"># =&gt; 28</span>
