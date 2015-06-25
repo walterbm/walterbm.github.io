@@ -4,7 +4,7 @@
   <title><![CDATA[WBM Blog]]></title>
   <link href="http://walterbm.github.io/atom.xml" rel="self"/>
   <link href="http://walterbm.github.io/"/>
-  <updated>2015-06-11T11:37:25-04:00</updated>
+  <updated>2015-06-25T01:36:25-04:00</updated>
   <id>http://walterbm.github.io/</id>
   <author>
     <name><![CDATA[Walter Beller-Morales]]></name>
@@ -12,6 +12,167 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Struct Instruct]]></title>
+    <link href="http://walterbm.github.io/blog/2015/06/25/struct-instruct/"/>
+    <updated>2015-06-25T01:03:56-04:00</updated>
+    <id>http://walterbm.github.io/blog/2015/06/25/struct-instruct</id>
+    <content type="html"><![CDATA[<p>Ruby is an amazingly flexible language. For almost every need Ruby provides the tools to craft an elegant and precise solution. Within Ruby is a digital toolshed powerful enough to build massive web application and precise enough to be wielded as a scalpel. Among the many tools available are <code>Struct</code>s.</p>
+
+<h2>What are Structs?</h2>
+
+<p>Despite their archaic name, Structs are simple and very useful. Structs provide a convenient way to bundle a few attributes together without having to explicitly write a class.[1] Basically, Structs are mini-classes with implicit data accessor methods. A Struct can serve as an elegant way to compartmentalize data within a class or serve as a way to build simple data structures without the overhead of a full-grown class.</p>
+
+<h2>How to use a Struct</h2>
+
+<p>Struct construction in Ruby is fairly simple.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">Subway</span> <span class="o">=</span> <span class="no">Struct</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:name</span><span class="p">,</span> <span class="ss">:line</span><span class="p">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Generally a Struct is manipulated by calling methods the same way a class or other similar object would be used.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">stop</span> <span class="o">=</span> <span class="no">Subway</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;Grand Central&quot;</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+</span><span class='line'><span class="n">stop</span><span class="o">.</span><span class="n">name</span>             <span class="c1">#=&gt; &quot;Grand Central&quot;</span>
+</span><span class='line'><span class="n">stop</span><span class="o">.</span><span class="n">line</span>             <span class="c1">#=&gt; 5</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">stop</span><span class="o">.</span><span class="n">line</span> <span class="o">=</span> <span class="mi">4</span>
+</span><span class='line'><span class="n">stop</span><span class="o">.</span><span class="n">line</span>             <span class="c1">#=&gt; 4</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>However, the strange powers of a Struct allow it to also be used  in a hash-like manner. Through this interface symbols and strings can be used interchangeably as keys.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">stop</span><span class="o">[</span><span class="ss">:name</span><span class="o">]</span>           <span class="c1">#=&gt; &quot;Grand Central&quot;</span>
+</span><span class='line'><span class="n">stop</span><span class="o">[</span><span class="s2">&quot;line&quot;</span><span class="o">]</span>          <span class="c1">#=&gt; 4</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">stop</span><span class="o">[</span><span class="s2">&quot;name&quot;</span><span class="o">]</span> <span class="o">=</span> <span class="s2">&quot;23rd Street&quot;</span>
+</span><span class='line'><span class="n">stop</span><span class="o">[</span><span class="ss">:line</span><span class="o">]</span> <span class="o">=</span> <span class="mi">6</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>But wait, that’s not all. For the low price of $0.00 Structs also allow you to define custom Struct methods.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="no">Email</span> <span class="o">=</span> <span class="no">Struct</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:name</span><span class="p">,</span><span class="ss">:domain</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">email</span><span class="o">|</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">address</span>
+</span><span class='line'>    <span class="s2">&quot;</span><span class="si">#{</span><span class="nb">name</span><span class="o">.</span><span class="n">gsub</span><span class="p">(</span><span class="err">‘</span> <span class="err">‘</span><span class="p">,</span><span class="err">’</span><span class="n">_</span><span class="err">’</span><span class="p">)</span><span class="si">}</span><span class="s2">@</span><span class="si">#{</span><span class="n">domain</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">email_account</span> <span class="o">=</span> <span class="no">Email</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="s2">&quot;walter beller morales&quot;</span><span class="p">,</span><span class="s2">&quot;arpanet.com&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="n">email_account</span><span class="o">.</span><span class="n">address</span> <span class="c1">#=&gt; &quot;walter_beller_morales@arpanet.com&quot;</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Truly, Structs are a strange and powerful beast.</p>
+
+<p>This short overview only covers the fundamentals. Structs provide much more functionality including value-equality and access to all the enumerable methods.[2]</p>
+
+<h2>Why use a Struct?</h2>
+
+<p>Structs are ideal for following the guiding mantra of object-oriented design: the <strong>single responsibility principal</strong>. A Struct can be used within classes to normalize the internal data structure or to avoid redundancies. An ordinary class would need superfluous attribute readers and writers before it could replicate the functionality of a Struct.</p>
+
+<p>Of course, Structs are not the solution to every problem. Every tool has its purpose. Structs create public accessors (readers and writers) that could pollute the scope if not managed carefully. Structs are also indadequate when the data structure needs to be flexible since a Struct instance will not accept data that was not explicitly accounted for in the constructor.</p>
+
+<p>But generally, for simple data containers, Structs are preferable over hashes. Structs are faster, carry less overhead, only accept a specific data structure, and are much more powerful thanks to customs methods.[3]</p>
+
+<h2><em>I wanna’a go fast</em></h2>
+
+<p>Structs can also be through of as a hybrid  between classes and hashes. This hybird nature has given them quite a speed advantage over ordinary hashes. For those with the need for speed I set-up a small drag race experiment to test the speed of a Struct vs. a Hash.[4]</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="nb">require</span> <span class="err">‘</span><span class="n">benchmark</span><span class="err">’</span>
+</span><span class='line'><span class="kp">include</span> <span class="no">Benchmark</span>
+</span><span class='line'><span class="no">COUNT</span> <span class="o">=</span> <span class="mi">10_000_000</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Benchmark</span><span class="o">.</span><span class="n">benchmark</span><span class="p">(</span><span class="no">CAPTION</span><span class="p">,</span> <span class="mi">15</span><span class="p">,</span> <span class="no">FORMAT</span><span class="p">,</span> <span class="err">“</span><span class="o">%</span> <span class="ss">difference</span><span class="p">:</span><span class="err">”</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">x</span><span class="o">|</span>
+</span><span class='line'>  <span class="n">hash_test</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="err">“</span><span class="nb">hash</span><span class="p">:</span><span class="err">”</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>    <span class="no">COUNT</span><span class="o">.</span><span class="n">times</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">first_programer</span> <span class="o">=</span> <span class="p">{</span><span class="ss">first_name</span><span class="p">:</span> <span class="err">‘</span><span class="n">ada</span><span class="err">’</span><span class="p">,</span> <span class="ss">last_email</span><span class="p">:</span> <span class="err">‘</span><span class="n">lovelace</span><span class="err">’</span><span class="p">}</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="n">struct_test</span> <span class="o">=</span> <span class="n">x</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="err">“</span><span class="ss">struct</span><span class="p">:</span><span class="err">”</span><span class="p">)</span> <span class="k">do</span>
+</span><span class='line'>    <span class="no">Programer</span> <span class="o">=</span> <span class="no">Struct</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="ss">:first_name</span><span class="p">,</span> <span class="ss">:last_name</span><span class="p">)</span>
+</span><span class='line'>    <span class="no">COUNT</span><span class="o">.</span><span class="n">times</span> <span class="k">do</span>
+</span><span class='line'>      <span class="n">first_programer</span> <span class="o">=</span> <span class="no">Programer</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="err">‘</span><span class="n">ada</span><span class="err">’</span><span class="p">,</span><span class="err">’</span><span class="n">lovelace</span><span class="err">’</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="o">[</span><span class="p">((</span><span class="n">hash_test</span><span class="o">-</span><span class="n">struct_test</span><span class="p">)</span><span class="o">/</span><span class="n">hash_test</span><span class="p">)</span><span class="o">*</span><span class="mi">100</span><span class="o">]</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='json'><span class='line'>                  <span class="err">user</span>     <span class="err">system</span>      <span class="err">total</span>        <span class="err">real</span>
+</span><span class='line'><span class="err">hash:</span>             <span class="mf">8.100000</span>   <span class="mf">0.020000</span>   <span class="mf">8.120000</span>    <span class="err">(</span><span class="mf">8.138051</span><span class="err">)</span>
+</span><span class='line'><span class="err">struct:</span>           <span class="mf">4.270000</span>   <span class="mf">0.010000</span>   <span class="mf">4.280000</span>    <span class="err">(</span><span class="mf">4.285140</span><span class="err">)</span>
+</span><span class='line'><span class="err">%</span> <span class="err">difference:</span>     <span class="mf">47.283951</span>  <span class="mf">50.000000</span>        <span class="err">NaN</span>   <span class="err">(</span><span class="mf">47.344402</span><span class="err">)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Over 10 million iterations, a Struct is roughly 47% faster than a hash. Not bad for a relatively unknown Ruby object.</p>
+
+<h2>Deconstructing Ruby</h2>
+
+<p>Ruby inherent simplicity and elegance is made possible by the immense variety of tools the language provides. Structs are only a small tool in the Ruby war chest but a tool you can now confidently wield.</p>
+
+<p>One of the great joys of learning to code is gaining an intimate understanding of your chosen programing language and all the tools it provides. Just like a bicycle or a pen, deeply learning  a pogroming language a can make that language feel less like foreign tool and more like an extension of the mind.</p>
+
+<h3>References &amp; Notes</h3>
+
+<ul>
+<li>[1] Metz, Sandi (2012-09-05). Practical Object-Oriented Design in Ruby: An Agile Primer (Addison-Wesley Professional Ruby Series). Pearson Education. Kindle Edition.</li>
+<li>[2] <a href="http://ruby-doc.org/core-2.2.0/Struct.html">Official Ruby Documentation (2.2.0) for the Struct class</a></li>
+<li>[3] <a href="http://stephaniehoh.github.io/blog/2013/12/28/the-ruby-struct-class/">Stephanie Oh (another great Flatiron School grad) wrote up a great overview of the Struct Class.</a></li>
+<li>[4] The comparison uses Ruby’s Benchmark library. I decided to set up the experiment to analyze the actual construction of an instance. The hash test builds an instance of the Hash class and the struct test build an instance of the specific Struct. This seems to mostly closely simulate normal use. An alternate setup iterating over the actual Struct construction would drastically reduce the speed advantage of Structs.</li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[How Does .reduce(:+) Work?]]></title>
