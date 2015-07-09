@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Rugrats | WBM Blog]]></title>
   <link href="http://walterbm.github.io/blog/categories/rugrats/atom.xml" rel="self"/>
   <link href="http://walterbm.github.io/"/>
-  <updated>2015-07-09T09:38:16-04:00</updated>
+  <updated>2015-07-09T09:40:06-04:00</updated>
   <id>http://walterbm.github.io/</id>
   <author>
     <name><![CDATA[Walter Beller-Morales]]></name>
@@ -110,6 +110,8 @@ cube_lambda.call(9)     #=&gt; 729
 <h2>Conclusion</h2>
 
 <p><img class="center" src="/images/lost_control_of_my_life.gif" width="500" height="250"></p>
+
+<h3>References &amp; Notes</h3>
 
 <ul>
 <li>[1] <a href="https://en.wikipedia.org/wiki/Closurer">Wikipedia - Closures</a></li>
