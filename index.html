@@ -89,7 +89,7 @@
 
 <h2>Blocks</h2>
 
-<p>Blocks are chunks of code that respond to a <code>yield</code> statement. You’ve definitely used Blocks before. Probably used one this morning. Most enumerator methods, like <code>each</code>,<code>map</code>, and <code>reduce</code>, accept a block as an argument.</p>
+<p>Blocks are chunks of code that respond to a <code>yield</code> statement. You&rsquo;ve definitely used Blocks before. Probably used one this morning. Most enumerator methods, like <code>each</code>,<code>map</code>, and <code>reduce</code>, accept a block as an argument.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -200,6 +200,15 @@
 <h2>Lambdas</h2>
 
 <p>Lambdas are basically strict Procs with different  <code>return</code> behavior. Both Lambdas and Procs are instances of the <code>Proc</code> class and both act like “anonymous functions”, however, Lambdas respect “arity” (a fancy way of saying that they will break if given an incorrect number of arguments, just like methods).</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">square_lambda</span> <span class="o">=</span> <span class="nb">lambda</span> <span class="o">|</span><span class="n">num</span><span class="o">|</span>
+</span><span class='line'>  <span class="nb">puts</span> <span class="n">num</span><span class="o">**</span><span class="mi">2</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
 
 <p>Lamdas and Procs handle <code>return</code> statements differently. Procs interpret the <code>return</code> within the scope that called the proc. Lamdas, on the other hand, interpret the <code>return</code> within the scope of the lamda (exactly the same way a method would handle a <code>return</code>). This is might seem like an esoteric difference but can easily cause some problems.</p>
 
