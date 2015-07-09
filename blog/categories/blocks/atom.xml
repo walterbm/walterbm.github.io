@@ -4,7 +4,7 @@
   <title><![CDATA[Category: Blocks | WBM Blog]]></title>
   <link href="http://walterbm.github.io/blog/categories/blocks/atom.xml" rel="self"/>
   <link href="http://walterbm.github.io/"/>
-  <updated>2015-07-09T09:14:18-04:00</updated>
+  <updated>2015-07-09T09:37:02-04:00</updated>
   <id>http://walterbm.github.io/</id>
   <author>
     <name><![CDATA[Walter Beller-Morales]]></name>
@@ -18,7 +18,7 @@
     <link href="http://walterbm.github.io/blog/2015/07/09/blocks-procs-and-lambdas/"/>
     <updated>2015-07-09T04:31:49-04:00</updated>
     <id>http://walterbm.github.io/blog/2015/07/09/blocks-procs-and-lambdas</id>
-    <content type="html"><![CDATA[<p>Closures are functions that create lexical scoping.[1] Blocks, Procs, and Lambdas are all examples of closures in Ruby.</p>
+    <content type="html"><![CDATA[<p>Closures are technique for implementing lexical scoping.[1] They encapsulate functions, variables, and an environment. Blocks, Procs, and Lambdas are all examples of closures in Ruby.</p>
 
 <h2>Blocks</h2>
 
@@ -34,7 +34,7 @@ end
 #=&gt; Filburt!
 </code></pre>
 
-<p>All the code between the <code>do</code> and <code>end</code> sandwich is a Block. Behind the scenes the <code>each</code> enumerator method is using a <code>yield</code> statement to pass the string into the Block we provided. If you’ve ever seen the error: <code>no block given (yield) (LocalJumpError)</code> you’ve encountered a method that expected a block but did not receive it. A monkey-patched example can help reveal the internals of how methods that expect a Block work:</p>
+<p>All the code between the <code>do</code> and <code>end</code> sandwich is a Block. Behind the scenes the <code>each</code> enumerator method is using a <code>yield</code> statement to pass the string into the Block we provided. If you&rsquo;ve ever seen the error: <code>no block given (yield) (LocalJumpError)</code> you&rsquo;ve encountered a method that expected a block but did not receive it. A monkey-patched example reveals the internals of how methods that expect a Block work:</p>
 
 <pre><code class="ruby">class Array
   def monkey_each
@@ -58,14 +58,14 @@ end
 
 <h2>Procs</h2>
 
-<p>Procs (short for “procedures”) are like Blocks with names. Formally, Procs are “anonymous functions” that can be represented as an object so that the code can be saved in a variable and reused throughout the program.[2] Unlike Blocks, Procs are actual objects constructed through use of the <code>Proc</code> class.</p>
+<p>Procs (short for “procedures”) are like Blocks with names. Formally, Procs are “anonymous functions” that can be represented as an object. Procs can be saved with a variable and reused throughout the program.[2] Unlike Blocks, Procs are actual objects constructed through use of the <code>Proc</code> class.</p>
 
 <pre><code class="ruby">square_proc = Proc.new do |num|
   puts num**2
 end
 </code></pre>
 
-<p>However, Procs respond to <code>.call</code> instead of yield.</p>
+<p>However, Procs respond to <code>.call</code> instead of <code>yield</code>.</p>
 
 <pre><code class="ruby">class Array
   def each_with_proc(proc)
@@ -89,22 +89,32 @@ end
 
 <p>Lambdas are basically strict Procs with different  <code>return</code> behavior. Both Lambdas and Procs are instances of the <code>Proc</code> class and both act like “anonymous functions”, however, Lambdas respect “arity” (a fancy way of saying that they will break if given an incorrect number of arguments, just like methods).</p>
 
-<pre><code class="ruby">square_lambda = lambda |num|
-  puts num**2
-end
+<pre><code class="ruby">square_lambda = lambda { |num| puts num**2 }
+
+square_lambda.call(16)    #=&gt; 256
+square_proc.call(16,4)    #=&gt; 256
+square_lambda.call(16,4)  #=&gt; wrong number of arguments (2 for 1) (ArgumentError)
 </code></pre>
 
-<p>Lamdas and Procs handle <code>return</code> statements differently. Procs interpret the <code>return</code> within the scope that called the proc. Lamdas, on the other hand, interpret the <code>return</code> within the scope of the lamda (exactly the same way a method would handle a <code>return</code>). This is might seem like an esoteric difference but can easily cause some problems.</p>
+<p>Alternatively, Lambdas can be created in what may be the most bad-ass name for obscure syntax — &ldquo;stabby lambda&rdquo;:</p>
 
-<p>Choosing between Lamdas and Procs really depends on preference. Both are perfect for encapsulating and storing code.</p>
+<pre><code class="ruby">cube_lambda = -&gt;(num){ puts num**3 } 
+
+cube_lambda.call(9)     #=&gt; 729
+</code></pre>
+
+<p>Lambdas and Procs also handle <code>return</code> statements differently. Procs interpret the <code>return</code> within the scope that called the proc. Lambdas, on the other hand, interpret the <code>return</code> within the scope of the lambda (exactly the same way a method would handle a <code>return</code>). This is might seem like an esoteric difference but can easily cause some problems.[3]</p>
+
+<p>Ultimately, choosing between Lambdas and Procs really depends on preference. Both are perfect for encapsulating and storing code.</p>
 
 <h2>Conclusion</h2>
 
 <p><img class="center" src="/images/lost_control_of_my_life.gif" width="500" height="250"></p>
 
 <ul>
-<li>[1] <a href="https://en.wikipedia.org/wiki/Closure_(computer_programming">Wikipedia - Closures</a>)</li>
+<li>[1] <a href="https://en.wikipedia.org/wiki/Closurer">Wikipedia - Closures</a></li>
 <li>[2] <a href="http://ruby-doc.org/core-2.2.2/Proc.html">Official Ruby Documentation (2.2.0) for the Proc class</a></li>
+<li>[3] <a href="http://www.reactive.io/tips/2008/12/21/understanding-ruby-blocks-procs-and-lambdas/">Reactive.IO has an excellent guide on blocks, procs, lambdas, and methods that covers the implication of the varying treatment of return</a></li>
 </ul>
 
 ]]></content>

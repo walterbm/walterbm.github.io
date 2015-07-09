@@ -9,7 +9,7 @@
   <meta name="author" content="Walter Beller-Morales">
 
   
-  <meta name="description" content="Closures are functions that create lexical scoping.[1] Blocks, Procs, and Lambdas are all examples of closures in Ruby. Blocks Blocks are chunks of &hellip;">
+  <meta name="description" content="Closures are technique for implementing lexical scoping.[1] They encapsulate functions, variables, and an environment. Blocks, Procs, and Lambdas are &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -85,7 +85,7 @@
   </header>
 
 
-  <div class="entry-content"><p>Closures are functions that create lexical scoping.[1] Blocks, Procs, and Lambdas are all examples of closures in Ruby.</p>
+  <div class="entry-content"><p>Closures are technique for implementing lexical scoping.[1] They encapsulate functions, variables, and an environment. Blocks, Procs, and Lambdas are all examples of closures in Ruby.</p>
 
 <h2>Blocks</h2>
 
@@ -110,7 +110,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>All the code between the <code>do</code> and <code>end</code> sandwich is a Block. Behind the scenes the <code>each</code> enumerator method is using a <code>yield</code> statement to pass the string into the Block we provided. If you’ve ever seen the error: <code>no block given (yield) (LocalJumpError)</code> you’ve encountered a method that expected a block but did not receive it. A monkey-patched example can help reveal the internals of how methods that expect a Block work:</p>
+<p>All the code between the <code>do</code> and <code>end</code> sandwich is a Block. Behind the scenes the <code>each</code> enumerator method is using a <code>yield</code> statement to pass the string into the Block we provided. If you&rsquo;ve ever seen the error: <code>no block given (yield) (LocalJumpError)</code> you&rsquo;ve encountered a method that expected a block but did not receive it. A monkey-patched example reveals the internals of how methods that expect a Block work:</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -151,7 +151,7 @@
 
 <h2>Procs</h2>
 
-<p>Procs (short for “procedures”) are like Blocks with names. Formally, Procs are “anonymous functions” that can be represented as an object so that the code can be saved in a variable and reused throughout the program.[2] Unlike Blocks, Procs are actual objects constructed through use of the <code>Proc</code> class.</p>
+<p>Procs (short for “procedures”) are like Blocks with names. Formally, Procs are “anonymous functions” that can be represented as an object. Procs can be saved with a variable and reused throughout the program.[2] Unlike Blocks, Procs are actual objects constructed through use of the <code>Proc</code> class.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -162,7 +162,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>However, Procs respond to <code>.call</code> instead of yield.</p>
+<p>However, Procs respond to <code>.call</code> instead of <code>yield</code>.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -204,23 +204,39 @@
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">square_lambda</span> <span class="o">=</span> <span class="nb">lambda</span> <span class="o">|</span><span class="n">num</span><span class="o">|</span>
-</span><span class='line'>  <span class="nb">puts</span> <span class="n">num</span><span class="o">**</span><span class="mi">2</span>
-</span><span class='line'><span class="k">end</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">square_lambda</span> <span class="o">=</span> <span class="nb">lambda</span> <span class="p">{</span> <span class="o">|</span><span class="n">num</span><span class="o">|</span> <span class="nb">puts</span> <span class="n">num</span><span class="o">**</span><span class="mi">2</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">square_lambda</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="mi">16</span><span class="p">)</span>    <span class="c1">#=&gt; 256</span>
+</span><span class='line'><span class="n">square_proc</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>    <span class="c1">#=&gt; 256</span>
+</span><span class='line'><span class="n">square_lambda</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="mi">16</span><span class="p">,</span><span class="mi">4</span><span class="p">)</span>  <span class="c1">#=&gt; wrong number of arguments (2 for 1) (ArgumentError)</span>
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Lamdas and Procs handle <code>return</code> statements differently. Procs interpret the <code>return</code> within the scope that called the proc. Lamdas, on the other hand, interpret the <code>return</code> within the scope of the lamda (exactly the same way a method would handle a <code>return</code>). This is might seem like an esoteric difference but can easily cause some problems.</p>
+<p>Alternatively, Lambdas can be created in what may be the most bad-ass name for obscure syntax — &ldquo;stabby lambda&rdquo;:</p>
 
-<p>Choosing between Lamdas and Procs really depends on preference. Both are perfect for encapsulating and storing code.</p>
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">cube_lambda</span> <span class="o">=</span> <span class="o">-&gt;</span><span class="p">(</span><span class="n">num</span><span class="p">){</span> <span class="nb">puts</span> <span class="n">num</span><span class="o">**</span><span class="mi">3</span> <span class="p">}</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">cube_lambda</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="mi">9</span><span class="p">)</span>     <span class="c1">#=&gt; 729</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Lambdas and Procs also handle <code>return</code> statements differently. Procs interpret the <code>return</code> within the scope that called the proc. Lambdas, on the other hand, interpret the <code>return</code> within the scope of the lambda (exactly the same way a method would handle a <code>return</code>). This is might seem like an esoteric difference but can easily cause some problems.[3]</p>
+
+<p>Ultimately, choosing between Lambdas and Procs really depends on preference. Both are perfect for encapsulating and storing code.</p>
 
 <h2>Conclusion</h2>
 
 <p><img class="center" src="/images/lost_control_of_my_life.gif" width="500" height="250"></p>
 
 <ul>
-<li>[1] <a href="https://en.wikipedia.org/wiki/Closure_(computer_programming">Wikipedia - Closures</a>)</li>
+<li>[1] <a href="https://en.wikipedia.org/wiki/Closurer">Wikipedia - Closures</a></li>
 <li>[2] <a href="http://ruby-doc.org/core-2.2.2/Proc.html">Official Ruby Documentation (2.2.0) for the Proc class</a></li>
+<li>[3] <a href="http://www.reactive.io/tips/2008/12/21/understanding-ruby-blocks-procs-and-lambdas/">Reactive.IO has an excellent guide on blocks, procs, lambdas, and methods that covers the implication of the varying treatment of return</a></li>
 </ul>
 
 </div>
