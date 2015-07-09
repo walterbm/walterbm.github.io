@@ -4,7 +4,7 @@
   <title><![CDATA[WBM Blog]]></title>
   <link href="http://walterbm.github.io/atom.xml" rel="self"/>
   <link href="http://walterbm.github.io/"/>
-  <updated>2015-06-25T01:36:25-04:00</updated>
+  <updated>2015-07-09T09:09:49-04:00</updated>
   <id>http://walterbm.github.io/</id>
   <author>
     <name><![CDATA[Walter Beller-Morales]]></name>
@@ -12,6 +12,143 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[&amp;Blocks, &amp;Procs, &amp;Lambdas]]></title>
+    <link href="http://walterbm.github.io/blog/2015/07/09/blocks-procs-and-lambdas/"/>
+    <updated>2015-07-09T04:31:49-04:00</updated>
+    <id>http://walterbm.github.io/blog/2015/07/09/blocks-procs-and-lambdas</id>
+    <content type="html"><![CDATA[<p>Closures are functions that create lexical scoping.[1] Blocks, Procs, and Lambdas are all examples of closures in Ruby.</p>
+
+<h2>Blocks</h2>
+
+<p>Blocks are chunks of code that respond to a <code>yield</code> statement. You’ve definitely used Blocks before. Probably used one this morning. Most enumerator methods, like <code>each</code>,<code>map</code>, and <code>reduce</code>, accept a block as an argument.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">[</span><span class="no">Rocko</span><span class="p">,</span><span class="no">Spunky</span><span class="p">,</span><span class="no">Heffer</span><span class="p">,</span><span class="no">Filburt</span><span class="o">].</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="nb">name</span><span class="o">|</span>
+</span><span class='line'>  <span class="nb">puts</span> <span class="nb">name</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">#=&gt; Rocko!</span>
+</span><span class='line'><span class="c1">#=&gt; Spunky!</span>
+</span><span class='line'><span class="c1">#=&gt; Heffer!</span>
+</span><span class='line'><span class="c1">#=&gt; Filburt!</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>All the code between the <code>do</code> and <code>end</code> sandwich is a Block. Behind the scenes the <code>each</code> enumerator method is using a <code>yield</code> statement to pass the string into the Block we provided. If you’ve ever seen the error: <code>no block given (yield) (LocalJumpError)</code> you’ve encountered a method that expected a block but did not receive it. A monkey-patched example can help reveal the internals of how methods that expect a Block work:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Array</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">monkey_each</span>
+</span><span class='line'>    <span class="nb">self</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">string</span><span class="o">|</span>
+</span><span class='line'>      <span class="k">yield</span><span class="p">(</span><span class="n">string</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">[</span><span class="s1">&#39;Rocko&#39;</span><span class="p">,</span><span class="s1">&#39;Spunky&#39;</span><span class="p">,</span><span class="s1">&#39;Heffer&#39;</span><span class="p">,</span><span class="s1">&#39;Filburt&#39;</span><span class="o">].</span><span class="n">monkey_each</span> <span class="k">do</span> <span class="o">|</span><span class="nb">name</span><span class="o">|</span>
+</span><span class='line'>  <span class="nb">puts</span> <span class="s2">&quot;</span><span class="si">#{</span><span class="nb">name</span><span class="si">}</span><span class="s2">!&quot;</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">#=&gt; Rocko!</span>
+</span><span class='line'><span class="c1">#=&gt; Spunky!</span>
+</span><span class='line'><span class="c1">#=&gt; Heffer!</span>
+</span><span class='line'><span class="c1">#=&gt; Filburt!</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Everybody uses Blocks. They are fundamental building_blocks_ of Ruby programing.</p>
+
+<h2>Procs</h2>
+
+<p>Procs (short for “procedures”) are like Blocks with names. Formally, Procs are “anonymous functions” that can be represented as an object so that the code can be saved in a variable and reused throughout the program.[2] Unlike Blocks, Procs are actual objects constructed through use of the <code>Proc</code> class.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">square_proc</span> <span class="o">=</span> <span class="no">Proc</span><span class="o">.</span><span class="n">new</span> <span class="k">do</span> <span class="o">|</span><span class="n">num</span><span class="o">|</span>
+</span><span class='line'>  <span class="nb">puts</span> <span class="n">num</span><span class="o">**</span><span class="mi">2</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>However, Procs respond to <code>.call</code> instead of yield.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Array</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">each_with_proc</span><span class="p">(</span><span class="nb">proc</span><span class="p">)</span>
+</span><span class='line'>    <span class="nb">self</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">number</span><span class="o">|</span>
+</span><span class='line'>      <span class="nb">proc</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">number</span><span class="p">)</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">[</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="o">].</span><span class="n">each_with_proc</span><span class="p">(</span><span class="n">bang_proc</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="c1">#=&gt; 4</span>
+</span><span class='line'><span class="c1">#=&gt; 9</span>
+</span><span class='line'><span class="c1">#=&gt; 16</span>
+</span><span class='line'><span class="c1">#=&gt; 25</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Procs help your programs stay DRY. If you catch yourself using the same Block logic repeatedly within your application then store that logic in Proc to avoid repetition.</p>
+
+<h2>Lambdas</h2>
+
+<p>Lambdas are basically strict Procs with different  <code>return</code> behavior. Both Lambdas and Procs are instances of the <code>Proc</code> class and both act like “anonymous functions”, however, Lambdas respect “arity” (a fancy way of saying that they will break if given an incorrect number of arguments, just like methods).</p>
+
+<p>Lamdas and Procs handle <code>return</code> statements differently. Procs interpret the <code>return</code> within the scope that called the proc. Lamdas, on the other hand, interpret the <code>return</code> within the scope of the lamda (exactly the same way a method would handle a <code>return</code>). This is might seem like an esoteric difference but can easily cause some problems.</p>
+
+<p>Choosing between Lamdas and Procs really depends on preference. Both are perfect for encapsulating and storing code.</p>
+
+<h2>Conclusion</h2>
+
+<p><img class="center" src="http://walterbm.github.io/images/lost_control_of_my_life.gif" width="500" height="250"></p>
+
+<ul>
+<li>[1] <a href="https://en.wikipedia.org/wiki/Closure_(computer_programming">Wikipedia - Closures</a>)</li>
+<li>[2] <a href="http://ruby-doc.org/core-2.2.2/Proc.html">Official Ruby Documentation (2.2.0) for the Proc class</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Struct Instruct]]></title>

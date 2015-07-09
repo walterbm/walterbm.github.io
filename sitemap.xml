@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://walterbm.github.io/blog/2015/07/09/blocks-procs-and-lambdas/</loc>
+    <lastmod>2015-07-09T04:31:49-04:00</lastmod>
+  </url>
+  <url>
     <loc>http://walterbm.github.io/blog/2015/06/25/struct-instruct/</loc>
     <lastmod>2015-06-25T01:03:56-04:00</lastmod>
   </url>
@@ -22,9 +26,18 @@
     <loc>http://walterbm.github.io/blog/categories/flatiron-school/</loc>
   </url>
   <url>
-    <loc>http://walterbm.github.io/blog/categories/flatiron-school-ruby/</loc>
+    <loc>http://walterbm.github.io/blog/categories/ruby/</loc>
   </url>
   <url>
-    <loc>http://walterbm.github.io/blog/categories/flatiron-school-ruby/</loc>
+    <loc>http://walterbm.github.io/blog/categories/blocks/</loc>
+  </url>
+  <url>
+    <loc>http://walterbm.github.io/blog/categories/procs/</loc>
+  </url>
+  <url>
+    <loc>http://walterbm.github.io/blog/categories/lambdas/</loc>
+  </url>
+  <url>
+    <loc>http://walterbm.github.io/blog/categories/rugrats/</loc>
   </url>
 </urlset>

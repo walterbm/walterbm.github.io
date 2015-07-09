@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: Lambdas | WBM Blog]]></title>
+  <link href="http://walterbm.github.io/blog/categories/lambdas/atom.xml" rel="self"/>
+  <link href="http://walterbm.github.io/"/>
+  <updated>2015-07-09T09:09:49-04:00</updated>
+  <id>http://walterbm.github.io/</id>
+  <author>
+    <name><![CDATA[Walter Beller-Morales]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[&amp;Blocks, &amp;Procs, &amp;Lambdas]]></title>
+    <link href="http://walterbm.github.io/blog/2015/07/09/blocks-procs-and-lambdas/"/>
+    <updated>2015-07-09T04:31:49-04:00</updated>
+    <id>http://walterbm.github.io/blog/2015/07/09/blocks-procs-and-lambdas</id>
+    <content type="html"><![CDATA[<p>Closures are functions that create lexical scoping.[1] Blocks, Procs, and Lambdas are all examples of closures in Ruby.</p>
+
+<h2>Blocks</h2>
+
+<p>Blocks are chunks of code that respond to a <code>yield</code> statement. You’ve definitely used Blocks before. Probably used one this morning. Most enumerator methods, like <code>each</code>,<code>map</code>, and <code>reduce</code>, accept a block as an argument.</p>
+
+<pre><code class="ruby">[Rocko,Spunky,Heffer,Filburt].each do |name|
+  puts name
+end
+
+#=&gt; Rocko!
+#=&gt; Spunky!
+#=&gt; Heffer!
+#=&gt; Filburt!
+</code></pre>
+
+<p>All the code between the <code>do</code> and <code>end</code> sandwich is a Block. Behind the scenes the <code>each</code> enumerator method is using a <code>yield</code> statement to pass the string into the Block we provided. If you’ve ever seen the error: <code>no block given (yield) (LocalJumpError)</code> you’ve encountered a method that expected a block but did not receive it. A monkey-patched example can help reveal the internals of how methods that expect a Block work:</p>
+
+<pre><code class="ruby">class Array
+  def monkey_each
+    self.each do |string|
+      yield(string)
+    end
+  end
+end
+
+['Rocko','Spunky','Heffer','Filburt'].monkey_each do |name|
+  puts "#{name}!"
+end
+
+#=&gt; Rocko!
+#=&gt; Spunky!
+#=&gt; Heffer!
+#=&gt; Filburt!
+</code></pre>
+
+<p>Everybody uses Blocks. They are fundamental building_blocks_ of Ruby programing.</p>
+
+<h2>Procs</h2>
+
+<p>Procs (short for “procedures”) are like Blocks with names. Formally, Procs are “anonymous functions” that can be represented as an object so that the code can be saved in a variable and reused throughout the program.[2] Unlike Blocks, Procs are actual objects constructed through use of the <code>Proc</code> class.</p>
+
+<pre><code class="ruby">square_proc = Proc.new do |num|
+  puts num**2
+end
+</code></pre>
+
+<p>However, Procs respond to <code>.call</code> instead of yield.</p>
+
+<pre><code class="ruby">class Array
+  def each_with_proc(proc)
+    self.each do |number|
+      proc.call(number)
+    end
+  end
+end
+
+[2,3,4,5].each_with_proc(bang_proc)
+
+#=&gt; 4
+#=&gt; 9
+#=&gt; 16
+#=&gt; 25
+</code></pre>
+
+<p>Procs help your programs stay DRY. If you catch yourself using the same Block logic repeatedly within your application then store that logic in Proc to avoid repetition.</p>
+
+<h2>Lambdas</h2>
+
+<p>Lambdas are basically strict Procs with different  <code>return</code> behavior. Both Lambdas and Procs are instances of the <code>Proc</code> class and both act like “anonymous functions”, however, Lambdas respect “arity” (a fancy way of saying that they will break if given an incorrect number of arguments, just like methods).</p>
+
+<p>Lamdas and Procs handle <code>return</code> statements differently. Procs interpret the <code>return</code> within the scope that called the proc. Lamdas, on the other hand, interpret the <code>return</code> within the scope of the lamda (exactly the same way a method would handle a <code>return</code>). This is might seem like an esoteric difference but can easily cause some problems.</p>
+
+<p>Choosing between Lamdas and Procs really depends on preference. Both are perfect for encapsulating and storing code.</p>
+
+<h2>Conclusion</h2>
+
+<p><img class="center" src="/images/lost_control_of_my_life.gif" width="500" height="250"></p>
+
+<ul>
+<li>[1] <a href="https://en.wikipedia.org/wiki/Closure_(computer_programming">Wikipedia - Closures</a>)</li>
+<li>[2] <a href="http://ruby-doc.org/core-2.2.2/Proc.html">Official Ruby Documentation (2.2.0) for the Proc class</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>
