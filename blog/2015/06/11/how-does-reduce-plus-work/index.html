@@ -1,89 +1,56 @@
 
-<!DOCTYPE html>
-<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
-<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
-<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<!DOCTYPE HTML>
+<html>
 <head>
-  <meta charset="utf-8">
-  <title>How Does .reduce(:+) Work? - WBM Blog</title>
-  <meta name="author" content="Walter Beller-Morales">
+	<meta charset="utf-8">
+	<title>How Does .reduce(:+) Work? | WBM Blog</title>
 
-  
-  <meta name="description" content="How do you sum up all the elements of an array in Ruby? 1
-[1,2,3,4,5].reduce(:+) # =&gt; 15 That’s all you need. Simple and elegant. But how does &hellip;">
-  
+	<meta name="author" content="Walter Beller-Morales"> 
+	
+	<meta name="description" content="thoughts on law - engineering - and business"> <meta name="keywords" content="">
 
-  <!-- http://t.co/dKP3o1e -->
-  <meta name="HandheldFriendly" content="True">
-  <meta name="MobileOptimized" content="320">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  
-  <link rel="canonical" href="http://walterbm.github.io/blog/2015/06/11/how-does-reduce-plus-work/">
-  <link href="/favicon.png" rel="icon">
-  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <link href="/atom.xml" rel="alternate" title="WBM Blog" type="application/atom+xml">
-  <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
-  <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
-<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-
-  
-
+	<link href="/atom.xml" rel="alternate" title="WBM Blog" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" rel="stylesheet" type="text/css">
+	
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	
 </head>
 
-<body   >
-  <header role="banner"><hgroup>
-  <h1><a href="/">WBM Blog</a></h1>
+
+
+<body>
+	<header id="header">
+<div class="inner">
+  <ul class="navigation">
+    <li><a href="/"><h1>WBM Blog</h1></a></li>
+    <li><a href="/" class="is-selected">Blog</a></li>
+    <li><a href="http://github.com/" target="blank">Github</a></li>
+  </ul>
+</div></header>
+
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">How Does .reduce(:+) Work?</h2>
+	<div class="meta">
+		<div class="date">
+
+
+
+
+
+
+
+
   
-</hgroup>
-
-</header>
-  <nav role="navigation"><ul class="subscription" data-subscription="rss">
-  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
-  
-</ul>
-  
-<form action="https://www.google.com/search" method="get">
-  <fieldset role="search">
-    <input type="hidden" name="sitesearch" value="walterbm.github.io">
-    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
-  </fieldset>
-</form>
-  
-<ul class="main-navigation">
-  <li><a href="/">Blog</a></li>
-  <li><a href="/blog/archives">Archives</a></li>
-</ul>
-
-</nav>
-  <div id="main">
-    <div id="content">
-      <div>
-<article class="hentry" role="article">
-  
-  <header>
-    
-      <h1 class="entry-title">How Does .reduce(:+) Work?</h1>
-    
-    
-      <p class="meta">
-        
 
 
 
-
-<time class='entry-date' datetime='2015-06-11T02:12:20-04:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>2:12 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-<div class="entry-content"><p>How do you sum up all the elements of an array in Ruby?</p>
+<time datetime="2015-06-11T02:12:20-04:00" pubdate data-updated="true">Jun 11th, 2015</time></div>
+	</div>
+	<div class="entry-content"><p>How do you sum up all the elements of an array in Ruby?</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 </pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">[</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">3</span><span class="p">,</span><span class="mi">4</span><span class="p">,</span><span class="mi">5</span><span class="o">].</span><span class="n">reduce</span><span class="p">(</span><span class="ss">:+</span><span class="p">)</span> <span class="c1"># =&gt; 15</span>
@@ -229,114 +196,44 @@
 </div>
 
 
-  <footer>
-    <p class="meta">
-      
+<div class="sharing">
   
-
-<span class="byline author vcard">Posted by <span class="fn">Walter Beller-Morales</span></span>
-
-      
-
-
-
-
-<time class='entry-date' datetime='2015-06-11T02:12:20-04:00'><span class='date'><span class='date-month'>Jun</span> <span class='date-day'>11</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>2:12 am</span></time>
-      
-
-<span class="categories">
-  
-    <a class='category' href='/blog/categories/flatiron-school/'>flatiron&nbsp;school</a>, <a class='category' href='/blog/categories/ruby/'>ruby</a>
-  
-</span>
-
-
-    </p>
-    
-      <div class="sharing">
-  
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://walterbm.github.io/blog/2015/06/11/how-does-reduce-plus-work/" data-via="" data-counturl="http://walterbm.github.io/blog/2015/06/11/how-does-reduce-plus-work/" >Tweet</a>
+  <div class="sns-tw">
+    <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js  ';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+  </div>
   
   
   
 </div>
-
-    
-    <p class="meta">
-      
-        <a class="basic-alignment left" href="/blog/2015/06/02/my-first-post-on-octopress/" title="Previous Post: My First Post On Octopress">&laquo; My First Post On Octopress</a>
-      
-      
-        <a class="basic-alignment right" href="/blog/2015/06/25/struct-instruct/" title="Next Post: Struct Instruct">Struct Instruct &raquo;</a>
-      
-    </p>
-  </footer>
 </article>
-
 </div>
+	<footer id="footer" class="inner"><div class="aboutme">
+<hr>
+  <div class="profile">
+    <a href="http://twitter.com/"><img class="icon" src=""></a>
 
-<aside class="sidebar">
-  
-    <section>
-  <h1>Recent Posts</h1>
-  <ul id="recent_posts">
-    
-      <li class="post">
-        <a href="/blog/2015/07/09/blocks-procs-and-lambdas/">&amp;Blocks, &amp;Procs, &amp;Lambdas</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/06/25/struct-instruct/">Struct Instruct</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/06/11/how-does-reduce-plus-work/">How Does .reduce(:+) Work?</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/06/02/my-first-post-on-octopress/">My First Post on Octopress</a>
-      </li>
-    
-  </ul>
-</section>
+    <h3>Walter Beller-Morales</h3>
+    <p><a href="http://twitter.com/">@</a></p>
 
-
-
-
-
-  
-</aside>
-
-
+    <div class="codes">
+      <h4>Codes</h4>
+      <div class="github"><a href="https://github.com/">github.com/</a></div>
     </div>
   </div>
-  <footer role="contentinfo"><p>
-  Copyright &copy; 2015 - Walter Beller-Morales -
-  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
-</p>
+
+  <div class="float_clear"></div>
+
+</div>
+Copyright &copy; 2015
+ Walter Beller-Morales 
+<br>
+Powered by Octopress.
+
+
 
 </footer>
-  
-
-
-
-
-
-
-
-  <script type="text/javascript">
-    (function(){
-      var twitterWidgets = document.createElement('script');
-      twitterWidgets.type = 'text/javascript';
-      twitterWidgets.async = true;
-      twitterWidgets.src = '//platform.twitter.com/widgets.js';
-      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
-    })();
-  </script>
-
-
-
-
+	
 
 </body>
 </html>

@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Category: Blocks | WBM Blog]]></title>
+  <title><![CDATA[Category: blocks | WBM Blog]]></title>
   <link href="http://walterbm.github.io/blog/categories/blocks/atom.xml" rel="self"/>
   <link href="http://walterbm.github.io/"/>
-  <updated>2015-07-09T09:40:06-04:00</updated>
+  <updated>2015-07-19T20:53:13-04:00</updated>
   <id>http://walterbm.github.io/</id>
   <author>
     <name><![CDATA[Walter Beller-Morales]]></name>
@@ -24,7 +24,7 @@
 
 <p>Blocks are chunks of code that respond to a <code>yield</code> statement. You&rsquo;ve definitely used Blocks before. Probably used one this morning. Most enumerator methods, like <code>each</code>,<code>map</code>, and <code>reduce</code>, accept a block as an argument.</p>
 
-<pre><code class="ruby">[Rocko,Spunky,Heffer,Filburt].each do |name|
+<pre><code class="ruby">['Rocko','Spunky','Heffer','Filburt'].each do |name|
   puts name
 end
 

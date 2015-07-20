@@ -1,88 +1,56 @@
 
-<!DOCTYPE html>
-<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
-<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
-<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<!DOCTYPE HTML>
+<html>
 <head>
-  <meta charset="utf-8">
-  <title>&amp;Blocks, &amp;Procs, &amp;Lambdas - WBM Blog</title>
-  <meta name="author" content="Walter Beller-Morales">
+	<meta charset="utf-8">
+	<title>&amp;Blocks, &amp;Procs, &amp;Lambdas | WBM Blog</title>
 
-  
-  <meta name="description" content="Closures are technique for implementing lexical scoping.[1] They encapsulate functions, variables, and an environment. Blocks, Procs, and Lambdas are &hellip;">
-  
+	<meta name="author" content="Walter Beller-Morales"> 
+	
+	<meta name="description" content="thoughts on law - engineering - and business"> <meta name="keywords" content="">
 
-  <!-- http://t.co/dKP3o1e -->
-  <meta name="HandheldFriendly" content="True">
-  <meta name="MobileOptimized" content="320">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
 
-  
-  <link rel="canonical" href="http://walterbm.github.io/blog/2015/07/09/blocks-procs-and-lambdas/">
-  <link href="/favicon.png" rel="icon">
-  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
-  <link href="/atom.xml" rel="alternate" title="WBM Blog" type="application/atom+xml">
-  <script src="/javascripts/modernizr-2.0.js"></script>
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-  <script>!window.jQuery && document.write(unescape('%3Cscript src="/javascripts/libs/jquery.min.js"%3E%3C/script%3E'))</script>
-  <script src="/javascripts/octopress.js" type="text/javascript"></script>
-  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
-<link href="//fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-<link href="//fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
-
-  
-
+	<link href="/atom.xml" rel="alternate" title="WBM Blog" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" rel="stylesheet" type="text/css">
+	
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	
 </head>
 
-<body   >
-  <header role="banner"><hgroup>
-  <h1><a href="/">WBM Blog</a></h1>
+
+
+<body>
+	<header id="header">
+<div class="inner">
+  <ul class="navigation">
+    <li><a href="/"><h1>WBM Blog</h1></a></li>
+    <li><a href="/" class="is-selected">Blog</a></li>
+    <li><a href="http://github.com/" target="blank">Github</a></li>
+  </ul>
+</div></header>
+
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">&amp;Blocks, &amp;Procs, &amp;Lambdas</h2>
+	<div class="meta">
+		<div class="date">
+
+
+
+
+
+
+
+
   
-</hgroup>
-
-</header>
-  <nav role="navigation"><ul class="subscription" data-subscription="rss">
-  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
-  
-</ul>
-  
-<form action="https://www.google.com/search" method="get">
-  <fieldset role="search">
-    <input type="hidden" name="sitesearch" value="walterbm.github.io">
-    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
-  </fieldset>
-</form>
-  
-<ul class="main-navigation">
-  <li><a href="/">Blog</a></li>
-  <li><a href="/blog/archives">Archives</a></li>
-</ul>
-
-</nav>
-  <div id="main">
-    <div id="content">
-      <div>
-<article class="hentry" role="article">
-  
-  <header>
-    
-      <h1 class="entry-title">&amp;Blocks, &amp;Procs, &amp;Lambdas</h1>
-    
-    
-      <p class="meta">
-        
 
 
 
-
-<time class='entry-date' datetime='2015-07-09T04:31:49-04:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>9</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>4:31 am</span></time>
-        
-      </p>
-    
-  </header>
-
-
-<div class="entry-content"><p>Closures are technique for implementing lexical scoping.[1] They encapsulate functions, variables, and an environment. Blocks, Procs, and Lambdas are all examples of closures in Ruby.</p>
+<time datetime="2015-07-09T04:31:49-04:00" pubdate data-updated="true">Jul 9th, 2015</time></div>
+	</div>
+	<div class="entry-content"><p>Closures are technique for implementing lexical scoping.[1] They encapsulate functions, variables, and an environment. Blocks, Procs, and Lambdas are all examples of closures in Ruby.</p>
 
 <h2>Blocks</h2>
 
@@ -96,7 +64,7 @@
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
 <span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">[</span><span class="no">Rocko</span><span class="p">,</span><span class="no">Spunky</span><span class="p">,</span><span class="no">Heffer</span><span class="p">,</span><span class="no">Filburt</span><span class="o">].</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="nb">name</span><span class="o">|</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">[</span><span class="s1">&#39;Rocko&#39;</span><span class="p">,</span><span class="s1">&#39;Spunky&#39;</span><span class="p">,</span><span class="s1">&#39;Heffer&#39;</span><span class="p">,</span><span class="s1">&#39;Filburt&#39;</span><span class="o">].</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="nb">name</span><span class="o">|</span>
 </span><span class='line'>  <span class="nb">puts</span> <span class="nb">name</span>
 </span><span class='line'><span class="k">end</span>
 </span><span class='line'>
@@ -241,112 +209,44 @@
 </div>
 
 
-  <footer>
-    <p class="meta">
-      
+<div class="sharing">
   
-
-<span class="byline author vcard">Posted by <span class="fn">Walter Beller-Morales</span></span>
-
-      
-
-
-
-
-<time class='entry-date' datetime='2015-07-09T04:31:49-04:00'><span class='date'><span class='date-month'>Jul</span> <span class='date-day'>9</span><span class='date-suffix'>th</span>, <span class='date-year'>2015</span></span> <span class='time'>4:31 am</span></time>
-      
-
-<span class="categories">
-  
-    <a class='category' href='/blog/categories/blocks/'>blocks</a>, <a class='category' href='/blog/categories/flatiron-school/'>flatiron&nbsp;school</a>, <a class='category' href='/blog/categories/lambdas/'>lambdas</a>, <a class='category' href='/blog/categories/procs/'>procs</a>, <a class='category' href='/blog/categories/ruby/'>ruby</a>, <a class='category' href='/blog/categories/rugrats/'>rugrats</a>
-  
-</span>
-
-
-    </p>
-    
-      <div class="sharing">
-  
-  <a href="//twitter.com/share" class="twitter-share-button" data-url="http://walterbm.github.io/blog/2015/07/09/blocks-procs-and-lambdas/" data-via="" data-counturl="http://walterbm.github.io/blog/2015/07/09/blocks-procs-and-lambdas/" >Tweet</a>
+  <div class="sns-tw">
+    <a href="https://twitter.com/share" class="twitter-share-button">Tweet</a>
+    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js  ';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+  </div>
   
   
   
 </div>
-
-    
-    <p class="meta">
-      
-        <a class="basic-alignment left" href="/blog/2015/06/25/struct-instruct/" title="Previous Post: Struct Instruct">&laquo; Struct Instruct</a>
-      
-      
-    </p>
-  </footer>
 </article>
-
 </div>
+	<footer id="footer" class="inner"><div class="aboutme">
+<hr>
+  <div class="profile">
+    <a href="http://twitter.com/"><img class="icon" src=""></a>
 
-<aside class="sidebar">
-  
-    <section>
-  <h1>Recent Posts</h1>
-  <ul id="recent_posts">
-    
-      <li class="post">
-        <a href="/blog/2015/07/09/blocks-procs-and-lambdas/">&amp;Blocks, &amp;Procs, &amp;Lambdas</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/06/25/struct-instruct/">Struct Instruct</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/06/11/how-does-reduce-plus-work/">How Does .reduce(:+) Work?</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2015/06/02/my-first-post-on-octopress/">My First Post on Octopress</a>
-      </li>
-    
-  </ul>
-</section>
+    <h3>Walter Beller-Morales</h3>
+    <p><a href="http://twitter.com/">@</a></p>
 
-
-
-
-
-  
-</aside>
-
-
+    <div class="codes">
+      <h4>Codes</h4>
+      <div class="github"><a href="https://github.com/">github.com/</a></div>
     </div>
   </div>
-  <footer role="contentinfo"><p>
-  Copyright &copy; 2015 - Walter Beller-Morales -
-  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
-</p>
+
+  <div class="float_clear"></div>
+
+</div>
+Copyright &copy; 2015
+ Walter Beller-Morales 
+<br>
+Powered by Octopress.
+
+
 
 </footer>
-  
-
-
-
-
-
-
-
-  <script type="text/javascript">
-    (function(){
-      var twitterWidgets = document.createElement('script');
-      twitterWidgets.type = 'text/javascript';
-      twitterWidgets.async = true;
-      twitterWidgets.src = '//platform.twitter.com/widgets.js';
-      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
-    })();
-  </script>
-
-
-
-
+	
 
 </body>
 </html>

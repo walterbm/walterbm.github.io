@@ -4,7 +4,7 @@
   <title><![CDATA[WBM Blog]]></title>
   <link href="http://walterbm.github.io/atom.xml" rel="self"/>
   <link href="http://walterbm.github.io/"/>
-  <updated>2015-07-09T09:40:06-04:00</updated>
+  <updated>2015-07-19T20:53:13-04:00</updated>
   <id>http://walterbm.github.io/</id>
   <author>
     <name><![CDATA[Walter Beller-Morales]]></name>
@@ -32,7 +32,7 @@
 <span class='line-number'>6</span>
 <span class='line-number'>7</span>
 <span class='line-number'>8</span>
-</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">[</span><span class="no">Rocko</span><span class="p">,</span><span class="no">Spunky</span><span class="p">,</span><span class="no">Heffer</span><span class="p">,</span><span class="no">Filburt</span><span class="o">].</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="nb">name</span><span class="o">|</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="o">[</span><span class="s1">&#39;Rocko&#39;</span><span class="p">,</span><span class="s1">&#39;Spunky&#39;</span><span class="p">,</span><span class="s1">&#39;Heffer&#39;</span><span class="p">,</span><span class="s1">&#39;Filburt&#39;</span><span class="o">].</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="nb">name</span><span class="o">|</span>
 </span><span class='line'>  <span class="nb">puts</span> <span class="nb">name</span>
 </span><span class='line'><span class="k">end</span>
 </span><span class='line'>
@@ -490,11 +490,11 @@
   </entry>
   
   <entry>
-    <title type="html"><![CDATA[My First Post on Octopress]]></title>
+    <title type="html"><![CDATA[My First Post On Octopress]]></title>
     <link href="http://walterbm.github.io/blog/2015/06/02/my-first-post-on-octopress/"/>
     <updated>2015-06-02T14:12:44-04:00</updated>
     <id>http://walterbm.github.io/blog/2015/06/02/my-first-post-on-octopress</id>
-    <content type="html"><![CDATA[<p>Hello World!</p>
+    <content type="html"><![CDATA[<p>First day at The Flatiron School.</p>
 ]]></content>
   </entry>
   
