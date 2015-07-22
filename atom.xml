@@ -4,7 +4,7 @@
   <title><![CDATA[WBM Blog]]></title>
   <link href="http://walterbm.github.io/atom.xml" rel="self"/>
   <link href="http://walterbm.github.io/"/>
-  <updated>2015-07-22T02:40:23-04:00</updated>
+  <updated>2015-07-22T09:06:16-04:00</updated>
   <id>http://walterbm.github.io/</id>
   <author>
     <name><![CDATA[Walter Beller-Morales]]></name>
@@ -24,7 +24,11 @@
 
 <p>Well, in short, &ldquo;duck typing&rdquo; is the idea that the behavior or capabilities of an object should not be determined by the object&rsquo;s type but rather by the object&rsquo;s public interface.</p>
 
+<p>That&rsquo;s it.</p>
+
 <p><img class="center" src="http://walterbm.github.io/images/duck.jpg" title="Quack!" ></p>
+
+<p>Still reading? Alright, I&rsquo;ll elaborate.</p>
 
 <h2>Why call it &ldquo;duck typing&rdquo;?</h2>
 
@@ -34,7 +38,7 @@
 
 <h2>Examples of &ldquo;duck typing&rdquo; in Ruby</h2>
 
-<p>In Ruby <em>everything</em> is an Object and nothing is statically typed. Which is to say, in Ruby the <em>type</em> of variables or methods is never declared but rather defined through behavior. This inherent flexibility is perfect for &ldquo;duck typing.&rdquo;</p>
+<p>In Ruby <em>everything</em> is an Object and nothing is statically typed. Which is to say, in Ruby the <em>type</em> of a variable or a method is never declared but rather defined through behavior. This inherent flexibility is perfect for &ldquo;duck typing.&rdquo;</p>
 
 <p>Let&rsquo;s create two classes, <code>Duck</code> and <code>Dilophosaurus</code>, to illustrate how &ldquo;duck typing&rdquo; works in Ruby. We will give the <code>Duck</code> class instance methods for <code>walk</code> and <code>quack</code>. The <code>Dilophosaurus</code> class will also get a <code>walk</code> method but it will <code>kill</code> instead of quack.</p>
 
@@ -75,7 +79,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Obviously, a duck and a dilophosaurus are nothing alike (you&rsquo;ll never convince me that dinosaurs are birds, <em>science</em>) so Ruby couldn&rsquo;t possibly confuse an instance of a <code>Duck</code> with an instance of a <code>Dilophosaurus</code>. Right?</p>
+<p>Obviously, a duck and a dilophosaurus are nothing alike (you&rsquo;ll never convince me that dinosaurs are birds) so Ruby couldn&rsquo;t possibly confuse an instance of a <code>Duck</code> with an instance of a <code>Dilophosaurus</code>. Right?</p>
 
 <p>Let&rsquo;s try it! We can build a small <code>is_a_duck?</code> method to give us an idea of how Ruby is treating the two instances.</p>
 
@@ -104,7 +108,9 @@
 
 <p>Since both <code>Duck</code> and <code>Dilophosaurus</code> share the public method <code>walk</code> Ruby simply doesn&rsquo;t care that the instances come from different classes. For the purposes of <code>walk</code> both objects can be treated as if they were the same type.</p>
 
-<p>But explicitly checking whether an object responds to a method seems overly contrived. If Ruby can handle dynamic typing so easily why not try a more realistic example.</p>
+<p>That&rsquo;s the great power of &ldquo;duck typing. &rdquo; The method <code>is_a_duck?</code> does not care about the class of its argument and is flexible enough to be used with multiple types of objects as long as that object responds to <code>walk</code>.</p>
+
+<p>But this example is explicitly checking whether an object responds to a method and this seems overly contrived. If Ruby can handle dynamic typing so easily why not try a more realistic example.</p>
 
 <p>Let&rsquo;s modify the <code>is_a_duck?</code> method to call the <code>quack</code> method on whatever is passed as an argument. <strong>If it quacks like a duck&hellip;</strong></p>
 
@@ -127,13 +133,13 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Not good. Since the <code>dino</code> instance does not have a public method <code>quack</code> Ruby throws-up in disgust and the program breaks. A dinosaur cannot quack and a <code>Dilophosaurus</code> instance should not be treated like a <code>Duck</code>.</p>
+<p>Not good. Since the <code>Dilophosaurus</code> instance does not have a public method <code>quack</code> Ruby throws-up in disgust and the program breaks. A dinosaur cannot quack and a <code>Dilophosaurus</code> instance should not be treated like a <code>Duck</code>.</p>
 
-<p>This might seems like a trivial example but imagine the <code>is_a_duck?</code> method is buried under thousands of lines of code and executed by a Kafkaesque chain of callback methods. In this nightmare scenario it might be impossible to ensure the <code>is_a_duck?</code> method is never passed a <code>Dilophosaurus</code> instance or any other object that does not respond to <code>quack</code>.</p>
+<p>This might seem like a trivial example but imagine the <code>is_a_duck?</code> method is buried under thousands of lines of code and executed by a Kafkaesque chain of callback methods. In this nightmare scenario it might be impossible to ensure the <code>is_a_duck?</code> method is never passed a <code>Dilophosaurus</code> instance or any other object that does not respond to <code>quack</code>.</p>
 
 <p>That&rsquo;s the danger of &ldquo;duck typing&rdquo;. If you treat all objects with the same public methods as being of the same type you&rsquo;ll invariably allow an object to pass through that could crash your whole program.</p>
 
-<p>For one last example let&rsquo;s see how we could force static typing in Ruby by explicitly checking the argument&rsquo;s class to make sure it is a <code>Duck</code>.</p>
+<p>For one last example let&rsquo;s see how we could simulate static typing in Ruby by explicitly checking the argument&rsquo;s class to make sure it is a <code>Duck</code>.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
@@ -158,7 +164,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>No confusion here. But this type-certainty came at a cost. The <code>is_a_duck?</code> method will never work with anything other than <code>Duck</code> instances and has become completely inflexible (not to mention unnecessarily verbose). This kind of rigidity goes against Ruby&rsquo;s core philosophy and is probably best reserved for static typed languages.</p>
+<p>No confusion here. But this type-certainty comes at a cost. The <code>is_a_duck?</code> method will never work with anything other than <code>Duck</code> instances and has now become completely inflexible (not to mention unnecessarily verbose). This kind of rigidity goes against Ruby&rsquo;s core philosophy and is probably best reserved for static typed languages.</p>
 
 <h2>Why should I care about &ldquo;duck typing&rdquo;</h2>
 
