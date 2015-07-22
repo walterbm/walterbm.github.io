@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd" xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>http://walterbm.github.io/blog/2015/07/21/duck-typing-in-ruby/</loc>
+    <lastmod>2015-07-21T21:37:50-04:00</lastmod>
+  </url>
+  <url>
     <loc>http://walterbm.github.io/blog/2015/07/09/blocks-procs-and-lambdas/</loc>
     <lastmod>2015-07-09T04:31:49-04:00</lastmod>
   </url>
@@ -42,5 +46,11 @@
   </url>
   <url>
     <loc>http://walterbm.github.io/blog/categories/rugrats/</loc>
+  </url>
+  <url>
+    <loc>http://walterbm.github.io/blog/categories/ducks/</loc>
+  </url>
+  <url>
+    <loc>http://walterbm.github.io/blog/categories/typing/</loc>
   </url>
 </urlset>

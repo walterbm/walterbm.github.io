@@ -1,0 +1,246 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Duck typing in Ruby | WBM Blog</title>
+
+	<meta name="author" content="Walter Beller-Morales"> 
+	
+	<meta name="description" content="thoughts on law - engineering - and business"> <meta name="keywords" content="">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="WBM Blog" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" rel="stylesheet" type="text/css">
+	
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	
+</head>
+
+
+
+<body>
+	<header id="header">
+<div class="inner">
+  <ul class="navigation">
+    <li><a href="/"><h1>WBM Blog</h1></a></li>
+    <li><a href="/" class="is-selected">Blog</a></li>
+    <li><a href="http://github.com/walterbm" target="blank">Github</a></li>
+  </ul>
+</div></header>
+
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">Duck Typing in Ruby</h2>
+	<div class="meta">
+		<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-07-21T21:37:50-04:00" pubdate data-updated="true">Jul 21st, 2015</time></div>
+	</div>
+	<div class="entry-content"><h2>&ldquo;If is says its a duck&hellip;well that&rsquo;s good enough for me.&rdquo;</h2>
+
+<p>If you&rsquo;ve been working with any sort of dynamic programming language like Ruby, JavaScript, Python, etc. (or hanging around with some strange people) you might have heard the phrase: <em>&ldquo;duck typing.&rdquo;</em> So what does this esoteric jargon mean?</p>
+
+<p>Well, in short, &ldquo;duck typing&rdquo; is the idea that the behavior or capabilities of an object should not be determined by the object&rsquo;s type but rather by the object&rsquo;s public interface.</p>
+
+<p><img class="center" src="/images/duck.jpg" title="Quack!" ></p>
+
+<h2>Why call it &ldquo;duck typing&rdquo;?</h2>
+
+<p>&ldquo;Duck typing&rdquo; was coined by Alex Martelli during the delirious months after Y2K as an attempt to explain the fuzzy behavior of dynamic typing.[1] Compared to the concrete type certainty of C++ and Java, dynamic typing meant that programmers never quite knew the exact <em>type</em> of the objects they were using. In response, early converts to dynamic languages attempted to force static typing by incessantly checking an object&rsquo;s type. Martelli used a simple analogy to dissuade this behavior:</p>
+
+<blockquote><p>Don&rsquo;t check whether it IS-a duck: check whether it QUACKS-like-a duck, WALKS-like-a duck, etc, etc, depending on exactly what subset of duck-like behavior you need to play your language-games with.</p></blockquote>
+
+<h2>Examples of &ldquo;duck typing&rdquo; in Ruby</h2>
+
+<p>In Ruby <em>everything</em> is an Object and nothing is statically typed. Which is to say, in Ruby the <em>type</em> of variables or methods is never declared but rather defined through behavior. This inherent flexibility is perfect for &ldquo;duck typing.&rdquo;</p>
+
+<p>Let&rsquo;s create two classes, <code>Duck</code> and <code>Dilophosaurus</code>, to illustrate how &ldquo;duck typing&rdquo; works in Ruby. We will give the <code>Duck</code> class instance methods for <code>walk</code> and <code>quack</code>. The <code>Dilophosaurus</code> class will also get a <code>walk</code> method but it will <code>kill</code> instead of quack.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Duck</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">walk</span>
+</span><span class='line'>    <span class="s2">&quot;walks&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">quack</span>
+</span><span class='line'>    <span class="s2">&quot;quacks&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Dilophosaurus</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">walk</span>
+</span><span class='line'>    <span class="s2">&quot;walks&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">kill</span>
+</span><span class='line'>    <span class="s2">&quot;bite!&quot;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Obviously, a duck and a dilophosaurus are nothing alike (you&rsquo;ll never convince me that dinosaurs are birds, <em>science</em>) so Ruby couldn&rsquo;t possibly confuse an instance of a <code>Duck</code> with an instance of a <code>Dilophosaurus</code>. Right?</p>
+
+<p>Let&rsquo;s try it! We can build a small <code>is_a_duck?</code> method to give us an idea of how Ruby is treating the two instances.</p>
+
+<p>In this first example the <code>is_a_duck?</code> method simply checks whether the object passed as an argument responds to the <code>walk</code> method. If it responds to the methods a <code>Duck</code> instance would respond to then it&rsquo;s a <code>Duck</code>. <strong>If it walks like a duck&hellip;</strong></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">daffy</span> <span class="o">=</span> <span class="no">Duck</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'><span class="n">dino</span> <span class="o">=</span> <span class="no">Dilophosaurus</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">is_a_duck?</span><span class="p">(</span><span class="n">animal</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">animal</span><span class="o">.</span><span class="n">respond_to?</span><span class="p">(</span><span class="ss">:walk</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">is_a_duck?</span><span class="p">(</span><span class="n">daffy</span><span class="p">)</span>      <span class="c1">#=&gt; true</span>
+</span><span class='line'><span class="n">is_a_duck?</span><span class="p">(</span><span class="n">dino</span><span class="p">)</span>       <span class="c1">#=&gt; true</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Since both <code>Duck</code> and <code>Dilophosaurus</code> share the public method <code>walk</code> Ruby simply doesn&rsquo;t care that the instances come from different classes. For the purposes of <code>walk</code> both objects can be treated as if they were the same type.</p>
+
+<p>But explicitly checking whether an object responds to a method seems overly contrived. If Ruby can handle dynamic typing so easily why not try a more realistic example.</p>
+
+<p>Let&rsquo;s modify the <code>is_a_duck?</code> method to call the <code>quack</code> method on whatever is passed as an argument. <strong>If it quacks like a duck&hellip;</strong></p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">is_a_duck?</span><span class="p">(</span><span class="n">animal</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">if</span> <span class="n">animal</span><span class="o">.</span><span class="n">quack</span>
+</span><span class='line'>    <span class="kp">true</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">is_a_duck?</span><span class="p">(</span><span class="n">daffy</span><span class="p">)</span>       <span class="c1">#=&gt; true</span>
+</span><span class='line'><span class="n">is_a_duck?</span><span class="p">(</span><span class="n">dino</span><span class="p">)</span>        <span class="c1">#=&gt; undefined method `quack&#39; for #&lt;Dilophosaurus&gt; (NoMethodError)</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Not good. Since the <code>dino</code> instance does not have a public method <code>quack</code> Ruby throws-up in disgust and the program breaks. A dinosaur cannot quack and a <code>Dilophosaurus</code> instance should not be treated like a <code>Duck</code>.</p>
+
+<p>This might seems like a trivial example but imagine the <code>is_a_duck?</code> method is buried under thousands of lines of code and executed by a Kafkaesque chain of callback methods. In this nightmare scenario it might be impossible to ensure the <code>is_a_duck?</code> method is never passed a <code>Dilophosaurus</code> instance or any other object that does not respond to <code>quack</code>.</p>
+
+<p>That&rsquo;s the danger of &ldquo;duck typing&rdquo;. If you treat all objects with the same public methods as being of the same type you&rsquo;ll invariably allow an object to pass through that could crash your whole program.</p>
+
+<p>For one last example let&rsquo;s see how we could force static typing in Ruby by explicitly checking the argument&rsquo;s class to make sure it is a <code>Duck</code>.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">def</span> <span class="nf">is_a_duck?</span><span class="p">(</span><span class="n">animal</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">if</span> <span class="n">animal</span><span class="o">.</span><span class="n">instance_of?</span><span class="p">(</span><span class="no">Duck</span><span class="p">)</span>
+</span><span class='line'>    <span class="s2">&quot;it </span><span class="si">#{</span><span class="n">animal</span><span class="o">.</span><span class="n">walk</span><span class="si">}</span><span class="s2"> like a duck and </span><span class="si">#{</span><span class="n">animal</span><span class="o">.</span><span class="n">quack</span><span class="si">}</span><span class="s2"> like a duck because we made sure it was a </span><span class="si">#{</span><span class="n">animal</span><span class="o">.</span><span class="n">class</span><span class="si">}</span><span class="s2">&quot;</span>
+</span><span class='line'>  <span class="k">else</span>
+</span><span class='line'>    <span class="kp">false</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">is_a_duck?</span><span class="p">(</span><span class="n">daffy</span><span class="p">)</span>       <span class="c1">#=&gt; &quot;it walks like a duck and quacks like a duck because we made sure it was a Duck&quot;</span>
+</span><span class='line'><span class="n">is_a_duck?</span><span class="p">(</span><span class="n">dino</span><span class="p">)</span>        <span class="c1">#=&gt; false</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>No confusion here. But this type-certainty came at a cost. The <code>is_a_duck?</code> method will never work with anything other than <code>Duck</code> instances and has become completely inflexible (not to mention unnecessarily verbose). This kind of rigidity goes against Ruby&rsquo;s core philosophy and is probably best reserved for static typed languages.</p>
+
+<h2>Why should I care about &ldquo;duck typing&rdquo;</h2>
+
+<p>When used cautiously &ldquo;duck typing&rdquo; can be an extremely elegant design technique. Allowing the logic of your code to rely solely on public interfaces rather than the underlying objects grants your application an immense flexibility to grow and adapt over time.</p>
+
+<p>But don&rsquo;t take my word for it. Follow the advice of the always eloquent Sandi Metz:</p>
+
+<blockquote><p>If every object trusts all others to be what it expects at any given moment, and any object can be any kind of thing, the design possibilities are infinite. These possibilities can be used to create flexible designs that are marvels of structured creativity or, alternatively, to construct terrifying designs that are incomprehensibly chaotic.[2]</p></blockquote>
+
+<h3>References &amp; Notes</h3>
+
+<ul>
+<li>[1] <a href="https://groups.google.com/forum/?hl=en#!msg/comp.lang.python/CCs2oJdyuzc/NYjla5HKMOIJ">The October 2000 Google Group discussion where Alex Martelli first released &ldquo;duck-typing&rdquo; into the wild</a></li>
+<li>[2] <a href="http://www.poodr.com/">Please read Sandi Metz&rsquo;s Practical Object-Oriented Design in Ruby (especially Chapter 5). Sandi Metz&rsquo;s guidance is mandatory reading for anyone designing an object-oriented application</a></li>
+</ul>
+
+</div>
+
+
+<div class="sharing">
+  
+  
+  
+</div>
+</article>
+</div>
+	<footer id="footer" class="inner"><div class="aboutme">
+<hr>
+  <div class="profile">
+    <img class="icon" src="">
+
+    <h3>Walter Beller-Morales</h3>
+
+    <div class="codes">
+      <div class="github"><a href="https://github.com/walterbm">github.com/walterbm</a></div>
+    </div>
+  </div>
+
+  <div class="float_clear"></div>
+
+</div>
+Copyright &copy; 2015
+ Walter Beller-Morales 
+<br>
+Powered by Octopress.
+
+
+
+</footer>
+	
+
+</body>
+</html>

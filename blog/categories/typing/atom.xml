@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: typing | WBM Blog]]></title>
+  <link href="http://walterbm.github.io/blog/categories/typing/atom.xml" rel="self"/>
+  <link href="http://walterbm.github.io/"/>
+  <updated>2015-07-22T02:40:23-04:00</updated>
+  <id>http://walterbm.github.io/</id>
+  <author>
+    <name><![CDATA[Walter Beller-Morales]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Duck typing in Ruby]]></title>
+    <link href="http://walterbm.github.io/blog/2015/07/21/duck-typing-in-ruby/"/>
+    <updated>2015-07-21T21:37:50-04:00</updated>
+    <id>http://walterbm.github.io/blog/2015/07/21/duck-typing-in-ruby</id>
+    <content type="html"><![CDATA[<h2>&ldquo;If is says its a duck&hellip;well that&rsquo;s good enough for me.&rdquo;</h2>
+
+<p>If you&rsquo;ve been working with any sort of dynamic programming language like Ruby, JavaScript, Python, etc. (or hanging around with some strange people) you might have heard the phrase: <em>&ldquo;duck typing.&rdquo;</em> So what does this esoteric jargon mean?</p>
+
+<p>Well, in short, &ldquo;duck typing&rdquo; is the idea that the behavior or capabilities of an object should not be determined by the object&rsquo;s type but rather by the object&rsquo;s public interface.</p>
+
+<p><img class="center" src="/images/duck.jpg" title="Quack!" ></p>
+
+<h2>Why call it &ldquo;duck typing&rdquo;?</h2>
+
+<p>&ldquo;Duck typing&rdquo; was coined by Alex Martelli during the delirious months after Y2K as an attempt to explain the fuzzy behavior of dynamic typing.[1] Compared to the concrete type certainty of C++ and Java, dynamic typing meant that programmers never quite knew the exact <em>type</em> of the objects they were using. In response, early converts to dynamic languages attempted to force static typing by incessantly checking an object&rsquo;s type. Martelli used a simple analogy to dissuade this behavior:</p>
+
+<blockquote><p>Don&rsquo;t check whether it IS-a duck: check whether it QUACKS-like-a duck, WALKS-like-a duck, etc, etc, depending on exactly what subset of duck-like behavior you need to play your language-games with.</p></blockquote>
+
+<h2>Examples of &ldquo;duck typing&rdquo; in Ruby</h2>
+
+<p>In Ruby <em>everything</em> is an Object and nothing is statically typed. Which is to say, in Ruby the <em>type</em> of variables or methods is never declared but rather defined through behavior. This inherent flexibility is perfect for &ldquo;duck typing.&rdquo;</p>
+
+<p>Let&rsquo;s create two classes, <code>Duck</code> and <code>Dilophosaurus</code>, to illustrate how &ldquo;duck typing&rdquo; works in Ruby. We will give the <code>Duck</code> class instance methods for <code>walk</code> and <code>quack</code>. The <code>Dilophosaurus</code> class will also get a <code>walk</code> method but it will <code>kill</code> instead of quack.
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Duck</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">walk</span>
+</span><span class='line'>    <span class="o">&amp;</span><span class="n">ldquo</span><span class="p">;</span><span class="n">walks</span><span class="o">&amp;</span><span class="n">rdquo</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">quack</span>
+</span><span class='line'>    <span class="o">&amp;</span><span class="n">ldquo</span><span class="p">;</span><span class="n">quacks</span><span class="o">&amp;</span><span class="n">rdquo</span><span class="p">;</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span><span class="o">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;class Dilophosaurus</span>
+</span><span class='line'><span class="sr">  def walk</span>
+</span><span class='line'><span class="sr">    &amp;ldquo;walks&amp;rdquo;</span>
+</span><span class='line'><span class="sr">  end</span>
+</span><span class='line'><span class="sr">  def kill</span>
+</span><span class='line'><span class="sr">    &amp;ldquo;bite!&amp;rdquo;</span>
+</span><span class='line'><span class="sr">  end</span>
+</span><span class='line'><span class="sr">end</span>
+</span><span class='line'><span class="sr">&lt;code&gt;``</span>
+</span><span class='line'><span class="sr">Obviously, a duck and a dilophosaurus are nothing alike (you&#39;ll never convince me that dinosaurs are birds, _science_) so Ruby couldn&#39;t possibly confuse an instance of a&lt;/</span><span class="n">code</span><span class="o">&gt;</span><span class="no">Duck</span><span class="o">&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">with</span> <span class="n">an</span> <span class="n">instance</span> <span class="n">of</span> <span class="n">a</span><span class="o">&lt;</span><span class="sr">/code&gt;Dilophosaurus`. Right?&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="no">Let</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;</span><span class="n">s</span> <span class="n">try</span> <span class="n">it!</span> <span class="no">We</span> <span class="n">can</span> <span class="n">build</span> <span class="n">a</span> <span class="n">small</span> <span class="o">&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">is_a_duck?</span><span class="o">&lt;</span><span class="sr">/code&gt; method to give us an idea of how Ruby is treating the two instances.&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="no">In</span> <span class="n">this</span> <span class="n">first</span> <span class="n">example</span> <span class="n">the</span> <span class="o">&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">is_a_duck?</span><span class="o">&lt;</span><span class="sr">/code&gt; method simply checks whether the object passed as an argument responds to the &lt;code&gt;walk&lt;/</span><span class="n">code</span><span class="o">&gt;</span> <span class="nb">method</span><span class="o">.</span> <span class="no">If</span> <span class="n">it</span> <span class="n">responds</span> <span class="n">to</span> <span class="n">the</span> <span class="nb">methods</span> <span class="n">a</span> <span class="o">&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="no">Duck</span><span class="o">&lt;</span><span class="sr">/code&gt; instance would respond to then it&amp;rsquo;s a &lt;code&gt;Duck&lt;/</span><span class="n">code</span><span class="o">&gt;.</span> <span class="o">&lt;</span><span class="n">strong</span><span class="o">&gt;</span><span class="no">If</span> <span class="n">it</span> <span class="n">walks</span> <span class="n">like</span> <span class="n">a</span> <span class="n">duck</span><span class="o">&amp;</span><span class="n">hellip</span><span class="p">;</span><span class="o">&lt;</span><span class="sr">/strong&gt;&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span> <span class="n">class</span><span class="o">=</span><span class="s2">&quot;ruby&quot;</span><span class="o">&gt;</span><span class="n">daffy</span> <span class="o">=</span> <span class="no">Duck</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'><span class="n">dino</span> <span class="o">=</span> <span class="no">Dilophosaurus</span><span class="o">.</span><span class="n">new</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">def</span> <span class="nf">is_a_duck?</span><span class="p">(</span><span class="n">animal</span><span class="p">)</span>
+</span><span class='line'>  <span class="n">animal</span><span class="o">.</span><span class="n">respond_to?</span><span class="p">(</span><span class="ss">:walk</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">is_a_duck?</span><span class="p">(</span><span class="n">daffy</span><span class="p">)</span>      <span class="c1">#=&amp;gt; true</span>
+</span><span class='line'><span class="n">is_a_duck?</span><span class="p">(</span><span class="n">dino</span><span class="p">)</span>       <span class="c1">#=&amp;gt; true</span>
+</span><span class='line'><span class="o">&lt;</span><span class="sr">/code&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="no">Since</span> <span class="n">both</span> <span class="o">&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="no">Duck</span><span class="o">&lt;</span><span class="sr">/code&gt; and &lt;code&gt;Dilophosaurus&lt;/</span><span class="n">code</span><span class="o">&gt;</span> <span class="n">share</span> <span class="n">the</span> <span class="kp">public</span> <span class="nb">method</span> <span class="o">&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">walk</span><span class="o">&lt;</span><span class="sr">/code&gt; Ruby simply doesn&amp;rsquo;t care that the instances come from different classes. For the purposes of &lt;code&gt;walk&lt;/</span><span class="n">code</span><span class="o">&gt;</span> <span class="n">both</span> <span class="n">objects</span> <span class="n">can</span> <span class="n">be</span> <span class="n">treated</span> <span class="n">as</span> <span class="k">if</span> <span class="n">they</span> <span class="n">were</span> <span class="n">the</span> <span class="n">same</span> <span class="n">type</span><span class="o">.</span><span class="n">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;But explicitly checking whether an object responds to a method seems overly contrived. If Ruby can handle dynamic typing so easily why not try a more realistic example.&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="no">Let</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;</span><span class="n">s</span> <span class="n">modify</span> <span class="n">the</span> <span class="o">&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">is_a_duck?</span><span class="o">&lt;</span><span class="sr">/code&gt; method to call the &lt;code&gt;quack&lt;/</span><span class="n">code</span><span class="o">&gt;</span> <span class="nb">method</span> <span class="n">on</span> <span class="n">whatever</span> <span class="n">is</span> <span class="n">passed</span> <span class="n">as</span> <span class="n">an</span> <span class="n">argument</span><span class="o">.</span> <span class="o">&lt;</span><span class="n">strong</span><span class="o">&gt;</span><span class="no">If</span> <span class="n">it</span> <span class="n">quacks</span> <span class="n">like</span> <span class="n">a</span> <span class="n">duck</span><span class="o">&amp;</span><span class="n">hellip</span><span class="p">;</span><span class="o">&lt;</span><span class="sr">/strong&gt;&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="n">pre</span><span class="o">&gt;&lt;</span><span class="n">code</span> <span class="n">class</span><span class="o">=</span><span class="s2">&quot;ruby&quot;</span><span class="o">&gt;</span><span class="k">def</span> <span class="nf">is_a_duck?</span><span class="p">(</span><span class="n">animal</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">if</span> <span class="n">animal</span><span class="o">.</span><span class="n">quack</span>
+</span><span class='line'>    <span class="kp">true</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="n">is_a_duck?</span><span class="p">(</span><span class="n">daffy</span><span class="p">)</span>       <span class="c1">#=&amp;gt; true</span>
+</span><span class='line'><span class="n">is_a_duck?</span><span class="p">(</span><span class="n">dino</span><span class="p">)</span>        <span class="c1">#=&amp;gt; undefined method `quack&#39; for #&amp;lt;Dilophosaurus&amp;gt; (NoMethodError)</span>
+</span><span class='line'><span class="o">&lt;</span><span class="sr">/code&gt;&lt;/</span><span class="n">pre</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="no">Not</span> <span class="n">good</span><span class="o">.</span> <span class="no">Since</span> <span class="n">the</span> <span class="o">&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">dino</span><span class="o">&lt;</span><span class="sr">/code&gt; instance does not have a public method &lt;code&gt;quack&lt;/</span><span class="n">code</span><span class="o">&gt;</span> <span class="no">Ruby</span> <span class="n">throws</span><span class="o">-</span><span class="n">up</span> <span class="k">in</span> <span class="n">disgust</span> <span class="ow">and</span> <span class="n">the</span> <span class="n">program</span> <span class="n">breaks</span><span class="o">.</span> <span class="n">A</span> <span class="n">dinosaur</span> <span class="n">cannot</span> <span class="n">quack</span> <span class="ow">and</span> <span class="n">a</span> <span class="o">&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="no">Dilophosaurus</span><span class="o">&lt;</span><span class="sr">/code&gt; instance should not be treated like a &lt;code&gt;Duck&lt;/</span><span class="n">code</span><span class="o">&gt;.</span><span class="n">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;This might seems like a trivial example but imagine the &lt;code&gt;is_a_duck?&lt;/</span><span class="n">code</span><span class="o">&gt;</span> <span class="nb">method</span> <span class="n">is</span> <span class="n">buried</span> <span class="n">under</span> <span class="n">thousands</span> <span class="n">of</span> <span class="n">lines</span> <span class="n">of</span> <span class="n">code</span> <span class="ow">and</span> <span class="n">executed</span> <span class="n">by</span> <span class="n">a</span> <span class="no">Kafkaesque</span> <span class="n">chain</span> <span class="n">of</span> <span class="n">callback</span> <span class="nb">methods</span><span class="o">.</span> <span class="no">In</span> <span class="n">this</span> <span class="n">nightmare</span> <span class="n">scenario</span> <span class="n">it</span> <span class="n">might</span> <span class="n">be</span> <span class="n">impossible</span> <span class="n">to</span> <span class="k">ensure</span> <span class="n">the</span> <span class="o">&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">is_a_duck?</span><span class="o">&lt;</span><span class="sr">/code&gt; method is never passed a &lt;code&gt;Dilophosaurus&lt;/</span><span class="n">code</span><span class="o">&gt;</span> <span class="n">instance</span> <span class="ow">or</span> <span class="n">any</span> <span class="n">other</span> <span class="n">object</span> <span class="n">that</span> <span class="n">does</span> <span class="ow">not</span> <span class="n">respond</span> <span class="n">to</span> <span class="o">&lt;</span><span class="n">code</span><span class="o">&gt;</span><span class="n">quack</span><span class="o">&lt;</span><span class="sr">/code&gt;.&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="no">That</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;</span><span class="n">s</span> <span class="n">the</span> <span class="n">danger</span> <span class="n">of</span> <span class="o">&amp;</span><span class="n">ldquo</span><span class="p">;</span><span class="n">duck</span> <span class="n">typing</span><span class="o">&amp;</span><span class="n">rdquo</span><span class="p">;</span><span class="o">.</span> <span class="no">If</span> <span class="n">you</span> <span class="n">treat</span> <span class="n">all</span> <span class="n">objects</span> <span class="n">with</span> <span class="n">the</span> <span class="n">same</span> <span class="kp">public</span> <span class="nb">methods</span> <span class="n">as</span> <span class="n">being</span> <span class="n">of</span> <span class="n">the</span> <span class="n">same</span> <span class="n">type</span> <span class="n">you</span><span class="o">&amp;</span><span class="n">rsquo</span><span class="p">;</span><span class="n">ll</span> <span class="n">invariably</span> <span class="n">allow</span> <span class="n">an</span> <span class="n">object</span> <span class="n">to</span> <span class="n">pass</span> <span class="n">through</span> <span class="n">that</span> <span class="n">could</span> <span class="n">crash</span> <span class="n">your</span> <span class="n">whole</span> <span class="n">program</span><span class="o">.</span><span class="n">&lt;</span><span class="sr">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="sr">&lt;p&gt;For one last example let&amp;rsquo;s see how we could force static typing in Ruby by explicitly checking the argument&amp;rsquo;s class to make sure it is a &lt;code&gt;Duck&lt;/</span><span class="n">code</span><span class="o">&gt;.</span>
+</span></code></pre></td></tr></table></div></figure>ruby
+def is_a_duck?(animal)
+  if animal.instance_of?(Duck)
+    &ldquo;it #{animal.walk} like a duck and #{animal.quack} like a duck because we made sure it was a #{animal.class}&rdquo;
+  else
+    false
+  end
+end</p>
+
+<p>is_a_duck?(daffy)       #=> &ldquo;it walks like a duck and quacks like a duck because we made sure it was a Duck&rdquo;
+is_a_duck?(dino)        #=> false
+<code>``
+No confusion here. But this type-certainty came at a cost. The</code>is_a_duck?<code>method will never work with anything other than</code>Duck` instances and has become completely inflexible (not to mention unnecessarily verbose). This kind of rigidity goes against Ruby&rsquo;s core philosophy and is probably best reserved for static typed languages.</p>
+
+<h2>Why should I care about &ldquo;duck typing&rdquo;</h2>
+
+<p>When used cautiously &ldquo;duck typing&rdquo; can be an extremely elegant design technique. Allowing the logic of your code to rely solely on public interfaces rather than the underlying objects grants your application an immense flexibility to grow and adapt over time.</p>
+
+<p>But don&rsquo;t take my word for it. Follow the advice of the always eloquent Sandi Metz:</p>
+
+<blockquote><p>If every object trusts all others to be what it expects at any given moment, and any object can be any kind of thing, the design possibilities are infinite. These possibilities can be used to create flexible designs that are marvels of structured creativity or, alternatively, to construct terrifying designs that are incomprehensibly chaotic.[2]</p></blockquote>
+
+<h3>References &amp; Notes</h3>
+
+<ul>
+<li>[1] <a href="https://groups.google.com/forum/?hl=en#!msg/comp.lang.python/CCs2oJdyuzc/NYjla5HKMOIJ">The October 2000 Google Group discussion where Alex Martelli first released &ldquo;duck-typing&rdquo; into the wild</a></li>
+<li>[2] <a href="http://www.poodr.com/">Please read Sandi Metz&rsquo;s Practical Object-Oriented Design in Ruby (especially Chapter 5). Sandi Metz&rsquo;s guidance is mandatory reading for anyone designing an object-oriented application</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>
