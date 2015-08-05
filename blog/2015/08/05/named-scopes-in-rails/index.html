@@ -50,7 +50,9 @@
 
 <time datetime="2015-08-05T01:12:11-04:00" pubdate data-updated="true">Aug 5th, 2015</time></div>
 	</div>
-	<div class="entry-content"><p>One of the beautiful things about Ruby is its inherent commitment to flexibility. In Ruby there&rsquo;s always more than one solution to a problem. Even in the <em>convention over configuration</em> world of Rails there are still a few enclaves of flexibility. Named scopes are a great example of this inherent flexibility but they can also be disorienting for young-developers like myself who are not yet familiar with all the tools Rails makes available.</p>
+	<div class="entry-content"><p>One of the beautiful things about Ruby is its inherent commitment to flexibility. In Ruby there&rsquo;s always more than one solution to a problem. Even in the <em>convention over configuration</em> world of Rails there are still a few enclaves of flexibility.</p>
+
+<p>Named scopes are a great example of this inherent flexibility but they can also be disorienting for young-developers like myself who are not yet familiar with all the tools Rails makes available.</p>
 
 <h3>What Are Scopes?</h3>
 
@@ -81,7 +83,7 @@
 </span></code></pre></td></tr></table></div></figure>
 
 
-<p>Both the class-method <code>red</code> and the named scope <code>red</code> are identical in function.</p>
+<p>Both the class-method <code>red</code> and the named scope method <code>red</code> are identical in function.</p>
 
 <p>However, scopes are convented from macros to class-methods when the Model class is interpreted (usually when the Rails server is initiated) possibly causing some confusing side-effects. When the class is interpreted the scope condition is immediately evaluated and statically set in the class-method produced by the scope. This is not really relevant when the scope condition is already static (like checking the color in the example above) but will cause problems for dynamic conditions. To illustrate let&rsquo;s build a scope to query our Car database for cars made in the last two months.</p>
 
