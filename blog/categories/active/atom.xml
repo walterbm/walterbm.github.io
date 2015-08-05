@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: active | WBM Blog]]></title>
+  <link href="http://walterbm.github.io/blog/categories/active/atom.xml" rel="self"/>
+  <link href="http://walterbm.github.io/"/>
+  <updated>2015-08-05T02:24:29-04:00</updated>
+  <id>http://walterbm.github.io/</id>
+  <author>
+    <name><![CDATA[Walter Beller-Morales]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Named Scopes in Rails]]></title>
+    <link href="http://walterbm.github.io/blog/2015/08/05/named-scopes-in-rails/"/>
+    <updated>2015-08-05T01:12:11-04:00</updated>
+    <id>http://walterbm.github.io/blog/2015/08/05/named-scopes-in-rails</id>
+    <content type="html"><![CDATA[<p>One of the beautiful things about Ruby is its inherent commitment to flexibility. In Ruby there&rsquo;s always more than one solution to a problem. Even in the <em>convention over configuration</em> world of Rails there are still a few enclaves of flexibility. Named scopes are a great example of this inherent flexibility but they can also be disorienting for young-developers like myself who are not yet familiar with all the tools Rails makes available.</p>
+
+<h3>What Are Scopes?</h3>
+
+<p>Scopes are Active Record macros for Model class-methods. Essentially a scope builds a class-method for the specific Model when the Rails server is initiated. Let&rsquo;s build a simple query to select all the red cars in our database using both a class-method and a scope.</p>
+
+<pre><code class="ruby">class Car&lt; ActiveRecord::Base
+  def self.red
+    self.where(color: "red")
+  end
+end
+
+class Car&lt; ActiveRecord::Base
+  scope :red, where(color: "red")
+end
+
+Car.red #=&gt; ActiveRecord::Relation representing all red Cars
+</code></pre>
+
+<p>Both the class-method <code>red</code> and the named scope <code>red</code> are identical in function.</p>
+
+<p>However, scopes are convented from macros to class-methods when the Model class is interpreted (usually when the Rails server is initiated) possibly causing some confusing side-effects. When the class is interpreted the scope condition is immediately evaluated and statically set in the class-method produced by the scope. This is not really relevant when the scope condition is already static (like checking the color in the example above) but will cause problems for dynamic conditions. To illustrate let&rsquo;s build a scope to query our Car database for cars made in the last two months.</p>
+
+<pre><code class="ruby">class Car&lt; ActiveRecord::Base
+  scope :red, where("month &gt;= ?", 2.months.ago)
+end
+</code></pre>
+
+<p>This will work perfectly but only relative to the time period when the Rails server was initiated. So if the server was initiated in March then <code>2.months.ago</code> would be converted into January as that month value would statically set in the class-method produced by the scope. In effect, the query would be searching for cars made since January rather than the cars made in the last two months.</p>
+
+<p>To solve this problem the scope condition can be wrapped in a <code>proc</code> or a <code>lambda</code>. A common pattern is to wrap the condition using the &lsquo;stabby&rsquo; lambda syntax.</p>
+
+<pre><code class="ruby">class Car&lt; ActiveRecord::Base
+  scope :red, -&gt; { where("month &gt;= ?", 2.month.ago) }
+end
+</code></pre>
+
+<p>This ensure that the condition is evaluated every time the class-method produced by the scope is called.</p>
+
+<h3>Why Use Scopes?</h3>
+
+<p>Ultimately the choice between using scopes or class-methods is stylistic rather than functional. Scopes help reduce the line-length of your Models but the exact same functionality can be implemented using traditional class-methods.</p>
+
+<p>Scopes are best used for simple queries which will be used repeatedly and class-methods can be used for more complex queries.</p>
+
+<h3>References &amp; Notes</h3>
+
+<ul>
+<li>[1] <a href="http://guides.rubyonrails.org/active_record_querying.html#scopes">Offical Ruby on Rails documentation for Active Record scopes</a></li>
+<li>[2] <a href="http://railscasts.com/episodes/108-named-scope">Slightly outdated (using Rails 2) Railscast on named scopes</a></li>
+<li>[3] <a href="http://blog.plataformatec.com.br/2013/02/active-record-scopes-vs-class-methods/">An excellent and more compreghensive post on scopes by Plataformatec (the Brazilian company behind the devise gem and the Elixr language)</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

@@ -4,7 +4,7 @@
   <title><![CDATA[WBM Blog]]></title>
   <link href="http://walterbm.github.io/atom.xml" rel="self"/>
   <link href="http://walterbm.github.io/"/>
-  <updated>2015-07-22T09:06:16-04:00</updated>
+  <updated>2015-08-05T02:24:29-04:00</updated>
   <id>http://walterbm.github.io/</id>
   <author>
     <name><![CDATA[Walter Beller-Morales]]></name>
@@ -12,6 +12,87 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Named Scopes in Rails]]></title>
+    <link href="http://walterbm.github.io/blog/2015/08/05/named-scopes-in-rails/"/>
+    <updated>2015-08-05T01:12:11-04:00</updated>
+    <id>http://walterbm.github.io/blog/2015/08/05/named-scopes-in-rails</id>
+    <content type="html"><![CDATA[<p>One of the beautiful things about Ruby is its inherent commitment to flexibility. In Ruby there&rsquo;s always more than one solution to a problem. Even in the <em>convention over configuration</em> world of Rails there are still a few enclaves of flexibility. Named scopes are a great example of this inherent flexibility but they can also be disorienting for young-developers like myself who are not yet familiar with all the tools Rails makes available.</p>
+
+<h3>What Are Scopes?</h3>
+
+<p>Scopes are Active Record macros for Model class-methods. Essentially a scope builds a class-method for the specific Model when the Rails server is initiated. Let&rsquo;s build a simple query to select all the red cars in our database using both a class-method and a scope.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Car</span><span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">red</span>
+</span><span class='line'>    <span class="nb">self</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="ss">color</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">class</span> <span class="nc">Car</span><span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="n">scope</span> <span class="ss">:red</span><span class="p">,</span> <span class="n">where</span><span class="p">(</span><span class="ss">color</span><span class="p">:</span> <span class="s2">&quot;red&quot;</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span><span class='line'>
+</span><span class='line'><span class="no">Car</span><span class="o">.</span><span class="n">red</span> <span class="c1">#=&gt; ActiveRecord::Relation representing all red Cars</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Both the class-method <code>red</code> and the named scope <code>red</code> are identical in function.</p>
+
+<p>However, scopes are convented from macros to class-methods when the Model class is interpreted (usually when the Rails server is initiated) possibly causing some confusing side-effects. When the class is interpreted the scope condition is immediately evaluated and statically set in the class-method produced by the scope. This is not really relevant when the scope condition is already static (like checking the color in the example above) but will cause problems for dynamic conditions. To illustrate let&rsquo;s build a scope to query our Car database for cars made in the last two months.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Car</span><span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="n">scope</span> <span class="ss">:red</span><span class="p">,</span> <span class="n">where</span><span class="p">(</span><span class="s2">&quot;month &gt;= ?&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="o">.</span><span class="n">months</span><span class="o">.</span><span class="n">ago</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This will work perfectly but only relative to the time period when the Rails server was initiated. So if the server was initiated in March then <code>2.months.ago</code> would be converted into January as that month value would statically set in the class-method produced by the scope. In effect, the query would be searching for cars made since January rather than the cars made in the last two months.</p>
+
+<p>To solve this problem the scope condition can be wrapped in a <code>proc</code> or a <code>lambda</code>. A common pattern is to wrap the condition using the &lsquo;stabby&rsquo; lambda syntax.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">Car</span><span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+</span><span class='line'>  <span class="n">scope</span> <span class="ss">:red</span><span class="p">,</span> <span class="o">-&gt;</span> <span class="p">{</span> <span class="n">where</span><span class="p">(</span><span class="s2">&quot;month &gt;= ?&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="o">.</span><span class="n">month</span><span class="o">.</span><span class="n">ago</span><span class="p">)</span> <span class="p">}</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This ensure that the condition is evaluated every time the class-method produced by the scope is called.</p>
+
+<h3>Why Use Scopes?</h3>
+
+<p>Ultimately the choice between using scopes or class-methods is stylistic rather than functional. Scopes help reduce the line-length of your Models but the exact same functionality can be implemented using traditional class-methods.</p>
+
+<p>Scopes are best used for simple queries which will be used repeatedly and class-methods can be used for more complex queries.</p>
+
+<h3>References &amp; Notes</h3>
+
+<ul>
+<li>[1] <a href="http://guides.rubyonrails.org/active_record_querying.html#scopes">Offical Ruby on Rails documentation for Active Record scopes</a></li>
+<li>[2] <a href="http://railscasts.com/episodes/108-named-scope">Slightly outdated (using Rails 2) Railscast on named scopes</a></li>
+<li>[3] <a href="http://blog.plataformatec.com.br/2013/02/active-record-scopes-vs-class-methods/">An excellent and more compreghensive post on scopes by Plataformatec (the Brazilian company behind the devise gem and the Elixr language)</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Duck typing in Ruby]]></title>
