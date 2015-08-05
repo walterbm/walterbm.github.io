@@ -4,7 +4,7 @@
   <title><![CDATA[Category: record | WBM Blog]]></title>
   <link href="http://walterbm.github.io/blog/categories/record/atom.xml" rel="self"/>
   <link href="http://walterbm.github.io/"/>
-  <updated>2015-08-05T02:26:24-04:00</updated>
+  <updated>2015-08-05T02:28:44-04:00</updated>
   <id>http://walterbm.github.io/</id>
   <author>
     <name><![CDATA[Walter Beller-Morales]]></name>
@@ -68,7 +68,7 @@ end
 <ul>
 <li>[1] <a href="http://guides.rubyonrails.org/active_record_querying.html#scopes">Offical Ruby on Rails documentation for Active Record scopes</a></li>
 <li>[2] <a href="http://railscasts.com/episodes/108-named-scope">Slightly outdated (using Rails 2) Railscast on named scopes</a></li>
-<li>[3] <a href="http://blog.plataformatec.com.br/2013/02/active-record-scopes-vs-class-methods/">An excellent and more compreghensive post on scopes by Plataformatec (the Brazilian company behind the devise gem and the Elixr language)</a></li>
+<li>[3] <a href="http://blog.plataformatec.com.br/2013/02/active-record-scopes-vs-class-methods/">An excellent and more comprehensive post on scopes by Plataformatec (the Brazilian company behind the devise gem and the Elixr language)</a></li>
 </ul>
 
 ]]></content>
