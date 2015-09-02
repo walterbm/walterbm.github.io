@@ -89,7 +89,9 @@
 
 <p>Both the class-method <code>red</code> and the named scope method <code>red</code> are identical in function.</p>
 
-<p>However, scopes are convented from macros to class-methods when the Model class is interpreted (usually when the Rails server is initiated). When the class is interpreted the scope condition is immediately evaluated and statically set in the class-method produced by the scope. This is not really relevant when the scope condition is already static (like checking the color in the example above) but will cause problems for dynamic conditions. While Rails 4 has warnings to catch this behavior the exploring this quirk can help us better understand Rails initiation process. To illustrate let&rsquo;s build a scope to query our Car database for cars made in the last two months.</p>
+<p>However, scopes are convented from macros to class-methods when the Model class is interpreted (usually when the Rails server is initiated). When the class is interpreted the scope condition is immediately evaluated and statically set in the class-method produced by the scope.</p>
+
+<p>This behavior is not really relevant when the scope condition is already static (like checking the color in the example above) but will cause problems for dynamic conditions. While Rails 4 has default warnings to catch this behavior, exploring this quirk can help us better understand Rails initiation process. To illustrate let&rsquo;s build a scope to query our Car database for cars made in the last two months.</p>
 
 <figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>

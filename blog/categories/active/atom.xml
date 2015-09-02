@@ -4,7 +4,7 @@
   <title><![CDATA[Category: active | WBM Blog]]></title>
   <link href="http://walterbm.github.io/blog/categories/active/atom.xml" rel="self"/>
   <link href="http://walterbm.github.io/"/>
-  <updated>2015-09-01T23:39:09-04:00</updated>
+  <updated>2015-09-01T23:41:18-04:00</updated>
   <id>http://walterbm.github.io/</id>
   <author>
     <name><![CDATA[Walter Beller-Morales]]></name>
@@ -43,7 +43,9 @@ Car.red #=&gt; ActiveRecord::Relation representing all red Cars
 
 <p>Both the class-method <code>red</code> and the named scope method <code>red</code> are identical in function.</p>
 
-<p>However, scopes are convented from macros to class-methods when the Model class is interpreted (usually when the Rails server is initiated). When the class is interpreted the scope condition is immediately evaluated and statically set in the class-method produced by the scope. This is not really relevant when the scope condition is already static (like checking the color in the example above) but will cause problems for dynamic conditions. While Rails 4 has warnings to catch this behavior the exploring this quirk can help us better understand Rails initiation process. To illustrate let&rsquo;s build a scope to query our Car database for cars made in the last two months.</p>
+<p>However, scopes are convented from macros to class-methods when the Model class is interpreted (usually when the Rails server is initiated). When the class is interpreted the scope condition is immediately evaluated and statically set in the class-method produced by the scope.</p>
+
+<p>This behavior is not really relevant when the scope condition is already static (like checking the color in the example above) but will cause problems for dynamic conditions. While Rails 4 has default warnings to catch this behavior, exploring this quirk can help us better understand Rails initiation process. To illustrate let&rsquo;s build a scope to query our Car database for cars made in the last two months.</p>
 
 <pre><code class="ruby">class Car&lt; ActiveRecord::Base
   scope :red, where("month &gt;= ?", 2.months.ago)
