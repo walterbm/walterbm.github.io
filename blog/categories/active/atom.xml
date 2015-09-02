@@ -4,7 +4,7 @@
   <title><![CDATA[Category: active | WBM Blog]]></title>
   <link href="http://walterbm.github.io/blog/categories/active/atom.xml" rel="self"/>
   <link href="http://walterbm.github.io/"/>
-  <updated>2015-08-05T02:33:11-04:00</updated>
+  <updated>2015-09-01T23:39:09-04:00</updated>
   <id>http://walterbm.github.io/</id>
   <author>
     <name><![CDATA[Walter Beller-Morales]]></name>
@@ -32,8 +32,10 @@
   end
 end
 
+Car.red #=&gt; ActiveRecord::Relation representing all red Cars
+
 class Car&lt; ActiveRecord::Base
-  scope :red, where(color: "red")
+  scope :red, -&gt; { where("month &gt;= ?", 2.month.ago) }
 end
 
 Car.red #=&gt; ActiveRecord::Relation representing all red Cars
@@ -41,14 +43,14 @@ Car.red #=&gt; ActiveRecord::Relation representing all red Cars
 
 <p>Both the class-method <code>red</code> and the named scope method <code>red</code> are identical in function.</p>
 
-<p>However, scopes are convented from macros to class-methods when the Model class is interpreted (usually when the Rails server is initiated) possibly causing some confusing side-effects. When the class is interpreted the scope condition is immediately evaluated and statically set in the class-method produced by the scope. This is not really relevant when the scope condition is already static (like checking the color in the example above) but will cause problems for dynamic conditions. To illustrate let&rsquo;s build a scope to query our Car database for cars made in the last two months.</p>
+<p>However, scopes are convented from macros to class-methods when the Model class is interpreted (usually when the Rails server is initiated). When the class is interpreted the scope condition is immediately evaluated and statically set in the class-method produced by the scope. This is not really relevant when the scope condition is already static (like checking the color in the example above) but will cause problems for dynamic conditions. While Rails 4 has warnings to catch this behavior the exploring this quirk can help us better understand Rails initiation process. To illustrate let&rsquo;s build a scope to query our Car database for cars made in the last two months.</p>
 
 <pre><code class="ruby">class Car&lt; ActiveRecord::Base
   scope :red, where("month &gt;= ?", 2.months.ago)
 end
 </code></pre>
 
-<p>This will work perfectly but only relative to the time period when the Rails server was initiated. So if the server was initiated in March then <code>2.months.ago</code> would be converted into January as that month value would statically set in the class-method produced by the scope. In effect, the query would be searching for cars made since January rather than the cars made in the last two months.</p>
+<p>This will trigger some warnings but should work&hellip;but only relative to the time period when the Rails server was initiated. So if the server was initiated in March then <code>2.months.ago</code> would be converted into January. The value would be statically set in the class-method produced by the scope. In effect, the query would be searching for cars made since January rather than the cars made in the last two months.</p>
 
 <p>To solve this problem the scope condition can be wrapped in a <code>proc</code> or a <code>lambda</code>. A common pattern is to wrap the condition using the &lsquo;stabby&rsquo; lambda syntax.</p>
 
@@ -57,13 +59,13 @@ end
 end
 </code></pre>
 
-<p>This ensure that the condition is evaluated every time the class-method produced by the scope is called.</p>
+<p>This ensure that the condition is evaluated every time the class-method produced by the scope is called. Rails 4 has made this pattern madnatory regardless of conditional used in the scope.</p>
 
 <h3>Why Use Scopes?</h3>
 
 <p>Ultimately the choice between using scopes or class-methods is stylistic rather than functional. Scopes help reduce the line-length of your Models but the exact same functionality can be implemented using traditional class-methods.</p>
 
-<p>Scopes are best used for simple queries which will be used repeatedly and class-methods can be used for more complex queries.</p>
+<p>Scopes are best used for simple queries which will be used repeatedly while class-methods are best used for more complex queries.</p>
 
 <h3>References &amp; Notes</h3>
 

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: ruby | WBM Blog]]></title>
   <link href="http://walterbm.github.io/blog/categories/ruby/atom.xml" rel="self"/>
   <link href="http://walterbm.github.io/"/>
-  <updated>2015-08-05T02:33:11-04:00</updated>
+  <updated>2015-09-01T23:39:09-04:00</updated>
   <id>http://walterbm.github.io/</id>
   <author>
     <name><![CDATA[Walter Beller-Morales]]></name>
@@ -32,8 +32,10 @@
   end
 end
 
+Car.red #=&gt; ActiveRecord::Relation representing all red Cars
+
 class Car&lt; ActiveRecord::Base
-  scope :red, where(color: "red")
+  scope :red, -&gt; { where("month &gt;= ?", 2.month.ago) }
 end
 
 Car.red #=&gt; ActiveRecord::Relation representing all red Cars
@@ -41,14 +43,14 @@ Car.red #=&gt; ActiveRecord::Relation representing all red Cars
 
 <p>Both the class-method <code>red</code> and the named scope method <code>red</code> are identical in function.</p>
 
-<p>However, scopes are convented from macros to class-methods when the Model class is interpreted (usually when the Rails server is initiated) possibly causing some confusing side-effects. When the class is interpreted the scope condition is immediately evaluated and statically set in the class-method produced by the scope. This is not really relevant when the scope condition is already static (like checking the color in the example above) but will cause problems for dynamic conditions. To illustrate let&rsquo;s build a scope to query our Car database for cars made in the last two months.</p>
+<p>However, scopes are convented from macros to class-methods when the Model class is interpreted (usually when the Rails server is initiated). When the class is interpreted the scope condition is immediately evaluated and statically set in the class-method produced by the scope. This is not really relevant when the scope condition is already static (like checking the color in the example above) but will cause problems for dynamic conditions. While Rails 4 has warnings to catch this behavior the exploring this quirk can help us better understand Rails initiation process. To illustrate let&rsquo;s build a scope to query our Car database for cars made in the last two months.</p>
 
 <pre><code class="ruby">class Car&lt; ActiveRecord::Base
   scope :red, where("month &gt;= ?", 2.months.ago)
 end
 </code></pre>
 
-<p>This will work perfectly but only relative to the time period when the Rails server was initiated. So if the server was initiated in March then <code>2.months.ago</code> would be converted into January as that month value would statically set in the class-method produced by the scope. In effect, the query would be searching for cars made since January rather than the cars made in the last two months.</p>
+<p>This will trigger some warnings but should work&hellip;but only relative to the time period when the Rails server was initiated. So if the server was initiated in March then <code>2.months.ago</code> would be converted into January. The value would be statically set in the class-method produced by the scope. In effect, the query would be searching for cars made since January rather than the cars made in the last two months.</p>
 
 <p>To solve this problem the scope condition can be wrapped in a <code>proc</code> or a <code>lambda</code>. A common pattern is to wrap the condition using the &lsquo;stabby&rsquo; lambda syntax.</p>
 
@@ -57,13 +59,13 @@ end
 end
 </code></pre>
 
-<p>This ensure that the condition is evaluated every time the class-method produced by the scope is called.</p>
+<p>This ensure that the condition is evaluated every time the class-method produced by the scope is called. Rails 4 has made this pattern madnatory regardless of conditional used in the scope.</p>
 
 <h3>Why Use Scopes?</h3>
 
 <p>Ultimately the choice between using scopes or class-methods is stylistic rather than functional. Scopes help reduce the line-length of your Models but the exact same functionality can be implemented using traditional class-methods.</p>
 
-<p>Scopes are best used for simple queries which will be used repeatedly and class-methods can be used for more complex queries.</p>
+<p>Scopes are best used for simple queries which will be used repeatedly while class-methods are best used for more complex queries.</p>
 
 <h3>References &amp; Notes</h3>
 
@@ -434,7 +436,7 @@ Generally a Struct is manipulated by calling methods the same way a class or oth
 </span><span class='line'><span class="sr">end&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
 </span><span class='line'>
 </span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="n">email_account</span> <span class="o">=</span> <span class="no">Email</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ldquo</span><span class="p">;</span><span class="n">walter</span> <span class="n">beller</span> <span class="n">morales</span><span class="o">&amp;</span><span class="n">rdquo</span><span class="p">;,</span><span class="o">&amp;</span><span class="n">ldquo</span><span class="p">;</span><span class="n">arpanet</span><span class="o">.</span><span class="n">com</span><span class="o">&amp;</span><span class="n">rdquo</span><span class="p">;)</span>
-</span><span class='line'><span class="n">email_account</span><span class="o">.</span><span class="n">address</span> <span class="c1">#=&gt; &amp;ldquo;&lt;a href=&quot;&amp;#109;&amp;#x61;&amp;#x69;&amp;#108;&amp;#116;&amp;#x6f;&amp;#x3a;&amp;#119;&amp;#97;&amp;#x6c;&amp;#116;&amp;#101;&amp;#114;&amp;#x5f;&amp;#x62;&amp;#x65;&amp;#108;&amp;#x6c;&amp;#101;&amp;#x72;&amp;#x5f;&amp;#109;&amp;#111;&amp;#114;&amp;#97;&amp;#108;&amp;#x65;&amp;#x73;&amp;#x40;&amp;#97;&amp;#114;&amp;#x70;&amp;#97;&amp;#x6e;&amp;#x65;&amp;#116;&amp;#46;&amp;#x63;&amp;#x6f;&amp;#109;&quot;&gt;&amp;#119;&amp;#x61;&amp;#x6c;&amp;#x74;&amp;#101;&amp;#114;&amp;#95;&amp;#98;&amp;#x65;&amp;#108;&amp;#x6c;&amp;#x65;&amp;#114;&amp;#x5f;&amp;#x6d;&amp;#111;&amp;#x72;&amp;#97;&amp;#x6c;&amp;#101;&amp;#x73;&amp;#64;&amp;#97;&amp;#x72;&amp;#x70;&amp;#x61;&amp;#x6e;&amp;#101;&amp;#116;&amp;#46;&amp;#99;&amp;#x6f;&amp;#109;&lt;/a&gt;&amp;rdquo;</span>
+</span><span class='line'><span class="n">email_account</span><span class="o">.</span><span class="n">address</span> <span class="c1">#=&gt; &amp;ldquo;&lt;a href=&quot;&amp;#x6d;&amp;#x61;&amp;#105;&amp;#x6c;&amp;#116;&amp;#x6f;&amp;#58;&amp;#x77;&amp;#97;&amp;#x6c;&amp;#x74;&amp;#x65;&amp;#x72;&amp;#95;&amp;#98;&amp;#x65;&amp;#108;&amp;#x6c;&amp;#x65;&amp;#114;&amp;#x5f;&amp;#109;&amp;#111;&amp;#x72;&amp;#97;&amp;#x6c;&amp;#x65;&amp;#115;&amp;#64;&amp;#x61;&amp;#114;&amp;#x70;&amp;#97;&amp;#x6e;&amp;#101;&amp;#116;&amp;#46;&amp;#99;&amp;#x6f;&amp;#109;&quot;&gt;&amp;#x77;&amp;#97;&amp;#x6c;&amp;#x74;&amp;#x65;&amp;#x72;&amp;#95;&amp;#x62;&amp;#101;&amp;#x6c;&amp;#x6c;&amp;#101;&amp;#114;&amp;#x5f;&amp;#x6d;&amp;#111;&amp;#x72;&amp;#97;&amp;#x6c;&amp;#x65;&amp;#115;&amp;#x40;&amp;#97;&amp;#114;&amp;#112;&amp;#97;&amp;#x6e;&amp;#101;&amp;#116;&amp;#46;&amp;#99;&amp;#x6f;&amp;#x6d;&lt;/a&gt;&amp;rdquo;</span>
 </span></code></pre></td></tr></table></div></figure>
 Truly, Structs are a strange and powerful beast.</p>
 
