@@ -4,7 +4,7 @@
   <title><![CDATA[WBM Blog]]></title>
   <link href="http://walterbm.github.io/atom.xml" rel="self"/>
   <link href="http://walterbm.github.io/"/>
-  <updated>2015-09-14T04:31:33-04:00</updated>
+  <updated>2015-09-14T04:32:14-04:00</updated>
   <id>http://walterbm.github.io/</id>
   <author>
     <name><![CDATA[Walter Beller-Morales]]></name>
@@ -107,7 +107,7 @@
     <link href="http://walterbm.github.io/blog/2015/07/21/duck-typing-in-ruby/"/>
     <updated>2015-07-21T21:37:50-04:00</updated>
     <id>http://walterbm.github.io/blog/2015/07/21/duck-typing-in-ruby</id>
-    <content type="html"><![CDATA[<h2>&ldquo;If is says its a duck&hellip;well that&rsquo;s good enough for me.&rdquo;</h2>
+    <content type="html"><![CDATA[<h2>&ldquo;If it says its a duck&hellip;well that&rsquo;s good enough for me.&rdquo;</h2>
 
 <p>If you&rsquo;ve been working with any sort of dynamic programming language like Ruby, JavaScript, Python, etc. (or hanging around with some strange people) you might have heard the phrase: <em>&ldquo;duck typing.&rdquo;</em> So what does this esoteric jargon mean?</p>
 
