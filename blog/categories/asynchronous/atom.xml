@@ -4,7 +4,7 @@
   <title><![CDATA[Category: asynchronous | WBM Blog]]></title>
   <link href="http://walterbm.github.io/blog/categories/asynchronous/atom.xml" rel="self"/>
   <link href="http://walterbm.github.io/"/>
-  <updated>2015-10-07T22:30:53-04:00</updated>
+  <updated>2015-10-08T18:57:42-04:00</updated>
   <id>http://walterbm.github.io/</id>
   <author>
     <name><![CDATA[Walter Beller-Morales]]></name>
@@ -129,11 +129,13 @@ end
 
 <h2>Conclusion</h2>
 
+<p>The code repo for <a href="http://doc2gif.xyz/">doc2gif</a> is available on my <a href="https://github.com/walterbm/document-gif">Github page</a>.</p>
+
 <p>I&rsquo;m a strong believer in side projects. Even silly and seemingly useless side project have the potential to teach more than any structured class or professional assignment. My solutions and the final web app are far from perfect. But that&rsquo;s exactly the point. Side projects are sandboxes to develop raw and creative solutions. So that next time, when a project requires stable polish, I can look at a small side project for inspiration.</p>
 
 <p>All I wanted to do was to convert PDFs into animated GIFs and now I&rsquo;ve learned and implemented single-process asynchronous processing and server-sent events.</p>
 
-<p>Maybe I should have made a GIF about it&hellip;</p>
+<p>Maybe I should make GIF about it&hellip;</p>
 
 <h2>References &amp; Notes</h2>
 
