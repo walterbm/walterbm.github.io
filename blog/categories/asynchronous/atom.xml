@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: asynchronous | WBM Blog]]></title>
+  <link href="http://walterbm.github.io/blog/categories/asynchronous/atom.xml" rel="self"/>
+  <link href="http://walterbm.github.io/"/>
+  <updated>2015-10-07T22:30:53-04:00</updated>
+  <id>http://walterbm.github.io/</id>
+  <author>
+    <name><![CDATA[Walter Beller-Morales]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Sinatra &amp; Server-Sent Events]]></title>
+    <link href="http://walterbm.github.io/blog/2015/10/07/sinatra-and-server-sent-events/"/>
+    <updated>2015-10-07T22:09:35-04:00</updated>
+    <id>http://walterbm.github.io/blog/2015/10/07/sinatra-and-server-sent-events</id>
+    <content type="html"><![CDATA[<p>Recently I finished a small and admittedly nonsensical side project of a web app that converts PDFs documents into animated GIFs. You can check it out at: <a href="http://doc2gif.xyz/">doc2gif.xyz</a>.</p>
+
+<p>Ever wanted to &ldquo;read&rdquo; <em>The Great Gatsby</em> in 30 seconds? Now you can!</p>
+
+<p><img class="center" src="/images/greatgatsby.gif" title="Old Sport!" ></p>
+
+<p>As silly as it seems the project actually helped me learn quite a lot about automated image manipulation (thank you Unix community for creating <a href="http://www.imagemagick.org/">ImageMagick</a>), asynchronous processing in Ruby, and HTTP 1.1 Server-Sent Events.</p>
+
+<p>In this post I&rsquo;ll focus mainly on the latter two; asynchronous processing and server-sent events.</p>
+
+<h2>Converting a 1000 page Document?</h2>
+
+<p>Let&rsquo;s say somebody wants to convert a PDF version of Infinite Jest into an animated GIFs (<em>why?</em> you ask&hellip;well why not? a GIF is not a deadly film cartridge after all). Converting all 1000 pages of the PDF into individual GIF frames is computationally very expensive and will slow down any server (especially a free-tier Heroku dyno).</p>
+
+<p>Now this creates a couple problems. Without a Sidekiq-type background worker the server will lock-up until the PDF conversion has finished. And if you are using Heroku, dyno&rsquo;s will terminate any HTTP request that takes longer than 30 seconds to complete.[1]</p>
+
+<h2>Asynchronous Processing &amp; Sucker Punch</h2>
+
+<p>The first problem seems easy enough to solve. Just start-up a Redis server and use a background worker to handle the image conversion. This is an excellent solution&hellip;unless you are cheap/broke and can&rsquo;t afford the hobby Heroku tier.</p>
+
+<p>Not to worry. The amazingly-named gem <a href="https://github.com/brandonhilkert/sucker_punch">Sucker-Punch</a> was made exactly for you (and me). Sucker Punch is a &ldquo;single-process Ruby asynchronous processing library&rdquo; built on top of Celluloid. Basically the gem allows you to asynchronously process tasks within a single Sinatra/Rails process without the need for a Redis server (works for small projects but don&rsquo;t rely on this for large scale applications).</p>
+
+<p>The gem is well documented and has a fairly straightforward API. Tasks that need to be processed asynchronously are wrapped in &ldquo;-Job&rdquo; object which respond to <code>#perform</code>.</p>
+
+<p>Here I create a Sucker Punch job to asynchronously handle the conversion of a PDF into a GIF:</p>
+
+<pre><code class="ruby">class DocprocessJob
+  include SuckerPunch::Job
+  def perform(document_object)
+    @pdf = document_object
+    @pdf.to_gif
+  end
+end
+</code></pre>
+
+<p>The Job is then queued by calling <code>#async</code> and <code>#perform</code> on the object:</p>
+
+<pre><code class="ruby">post '/' do
+    pdf = Document.new(params_file_path,params_size,params_interval)
+    @file_name = pdf.gif_file_name
+    DocprocessJob.new.async.perform(pdf)
+end
+</code></pre>
+
+<p>Now when a POST request is made (containing the uploaded PDF document) the <code>DocProcessJob</code> is queued to perform in the background while the main POST request can return a response to the client instantly.</p>
+
+<p>But now we have another problem. When the animated GIF is ready the connection to the client is closed. How can we alert the client that the conversion has finished?</p>
+
+<h2>&ldquo;Real Time Rack&rdquo; &amp; YouTube to the Rescue</h2>
+
+<p>Before this project my knowledge of real time HTTP responses was limited. Thankfully we live in a world where you can learn from the best software developers in the world by just search for a conference event on YouTube.</p>
+
+<p><a href="https://github.com/rkh">Konstantin Haase</a>, one of the core developers for Sinatra &amp; Rack, held a great talk called <a href="https://www.youtube.com/watch?v=R84ersKcKFc">&ldquo;Real Time Rack&rdquo;</a> at the 2011 Rocky Mountain Ruby Conference that covers streaming, Server-Sent Events, and WebSockets.</p>
+
+<p>As originally designed, HTTP never allowed for push-notifications from the server to the client. An HTTP request always begins with the client. But over time several clever developers have created different solutions to overcome this problem.</p>
+
+<p>Some solutions, like &ldquo;Long-Polling,&rdquo; hold the connection open after the client has made a request until the server is ready to &ldquo;push&rdquo; the data to the client.[2] This is not exactly a push-notification since the client&rsquo;s request is simply held idle until the server responds.</p>
+
+<p>More modern solutions implement &ldquo;Web Sockets,&rdquo; which use an independent protocol. Web Sockets provide &ldquo;a standardized way for the server to send content to the browser without being solicited by the client, and allowing for messages to be passed back and forth while keeping the connection open&rdquo;.[3]</p>
+
+<p>For the particular problem of notifying a user when a PDF file has been fully converted to an animated GIF I decided to use another alternative, <strong>Server-Sent Events</strong>.</p>
+
+<h2>Server-Sent Events</h2>
+
+<p>Server-Sent Events allow a server to send data to clients once an initial client connection has been established.[4] Unlike WebSockets, a Server-Sent Event is not bi-directional. The client cannot send messages to the server. But for my purposes this wasn&rsquo;t a problem.</p>
+
+<p>Creating a Server-Sent Event in Sinatra is surprisingly easy.</p>
+
+<p>First the client makes the initial connection to the server using the <code>EventSource()</code> JavaScript interface. Here the initial connection is made to the <code>/stream</code> route.</p>
+
+<pre><code class="javascript">var serverSentEvent = new EventSource('/stream');
+serverSentEvent.onmessage = function(e) {
+  alert(e.data);
+} 
+</code></pre>
+
+<p>Then, Sinatra detects the call to the <code>/stream</code> route and keeps this connection open for text-streaming.</p>
+
+<pre><code class="ruby">get '/stream/:file', provides: 'text/event-stream' do
+  stream(:keep_open) do |out|
+    connections &lt;&lt; out
+    FilecheckJob.new.async.perform(params[:file],out)
+
+    # purge dead connections
+    connections.reject!(&amp;:closed?)
+  end
+end
+</code></pre>
+
+<p>The <code>stream()</code> function is part of the vanilla Sinatra DSL.[5] The <code>out</code> variable stores the client&rsquo;s connection in an object. Like any other Ruby object this can be passed to other parts of the control flow. In this example I pass the client connection to the asynchronous <code>FilecheckJob</code> task.</p>
+
+<p>Once the <code>FilecheckJob</code> has completed – checking to see if the animated GIF has been placed in the <code>/complete</code> directory – the client&rsquo;s connection alerted through the <code>&lt;&lt;</code> method that sends the message <code>true</code> to the client.</p>
+
+<pre><code class="ruby">class FileCheck
+  def complete?
+    loop do
+      if File.exist?(@path)
+        @client &lt;&lt; "data: true\n\n"
+        break
+      end
+    end
+  end
+end
+</code></pre>
+
+<p>Once the message has been received by the client the Server-Sent Event is complete.</p>
+
+<p><strong>An important note!</strong> <code>WEBrick</code>, the default Ruby web server <strong>does not</strong> support Server-Sent Events. You must use <code>Thin</code> or <code>Rainbows</code>. Don&rsquo;t forget to explicitly instruct Heroku to use another server with a <code>Procfile</code>.</p>
+
+<h2>Conclusion</h2>
+
+<p>I&rsquo;m a strong believer in side projects. Even silly and seemingly useless side project have the potential to teach more than any structured class or professional assignment. My solutions and the final web app are far from perfect. But that&rsquo;s exactly the point. Side projects are sandboxes to develop raw and creative solutions. So that next time, when a project requires stable polish, I can look at a small side project for inspiration.</p>
+
+<p>All I wanted to do was to convert PDFs into animated GIFs and now I&rsquo;ve learned and implemented single-process asynchronous processing and server-sent events.</p>
+
+<p>Maybe I should have made a GIF about it&hellip;</p>
+
+<h2>References &amp; Notes</h2>
+
+<ul>
+<li>[1] <a href="https://devcenter.heroku.com/articles/error-codes#h12-request-timeout">Heroku - Error Code H12 Request timeout</a></li>
+<li>[2] <a href="https://en.wikipedia.org/wiki/Push_technology#Long_polling">Wikipedia - HTTP Long Polling</a></li>
+<li>[3] <a href="https://en.wikipedia.org/wiki/WebSocket">Wikipedia - WebSockets</a></li>
+<li>[4] <a href="https://en.wikipedia.org/wiki/Server-sent_events">Wikipedia - Server-Sent Events</a></li>
+<li>[5] <a href="http://www.sinatrarb.com/intro.html#Streaming%20Responses">Sinatra - Streaming Responses</a></li>
+</ul>
+
+]]></content>
+  </entry>
+  
+</feed>

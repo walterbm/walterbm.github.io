@@ -4,7 +4,7 @@
   <title><![CDATA[Category: ruby | WBM Blog]]></title>
   <link href="http://walterbm.github.io/blog/categories/ruby/atom.xml" rel="self"/>
   <link href="http://walterbm.github.io/"/>
-  <updated>2015-09-15T17:53:07-04:00</updated>
+  <updated>2015-10-07T22:30:53-04:00</updated>
   <id>http://walterbm.github.io/</id>
   <author>
     <name><![CDATA[Walter Beller-Morales]]></name>
@@ -12,6 +12,141 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Sinatra &amp; Server-Sent Events]]></title>
+    <link href="http://walterbm.github.io/blog/2015/10/07/sinatra-and-server-sent-events/"/>
+    <updated>2015-10-07T22:09:35-04:00</updated>
+    <id>http://walterbm.github.io/blog/2015/10/07/sinatra-and-server-sent-events</id>
+    <content type="html"><![CDATA[<p>Recently I finished a small and admittedly nonsensical side project of a web app that converts PDFs documents into animated GIFs. You can check it out at: <a href="http://doc2gif.xyz/">doc2gif.xyz</a>.</p>
+
+<p>Ever wanted to &ldquo;read&rdquo; <em>The Great Gatsby</em> in 30 seconds? Now you can!</p>
+
+<p><img class="center" src="/images/greatgatsby.gif" title="Old Sport!" ></p>
+
+<p>As silly as it seems the project actually helped me learn quite a lot about automated image manipulation (thank you Unix community for creating <a href="http://www.imagemagick.org/">ImageMagick</a>), asynchronous processing in Ruby, and HTTP 1.1 Server-Sent Events.</p>
+
+<p>In this post I&rsquo;ll focus mainly on the latter two; asynchronous processing and server-sent events.</p>
+
+<h2>Converting a 1000 page Document?</h2>
+
+<p>Let&rsquo;s say somebody wants to convert a PDF version of Infinite Jest into an animated GIFs (<em>why?</em> you ask&hellip;well why not? a GIF is not a deadly film cartridge after all). Converting all 1000 pages of the PDF into individual GIF frames is computationally very expensive and will slow down any server (especially a free-tier Heroku dyno).</p>
+
+<p>Now this creates a couple problems. Without a Sidekiq-type background worker the server will lock-up until the PDF conversion has finished. And if you are using Heroku, dyno&rsquo;s will terminate any HTTP request that takes longer than 30 seconds to complete.[1]</p>
+
+<h2>Asynchronous Processing &amp; Sucker Punch</h2>
+
+<p>The first problem seems easy enough to solve. Just start-up a Redis server and use a background worker to handle the image conversion. This is an excellent solution&hellip;unless you are cheap/broke and can&rsquo;t afford the hobby Heroku tier.</p>
+
+<p>Not to worry. The amazingly-named gem <a href="https://github.com/brandonhilkert/sucker_punch">Sucker-Punch</a> was made exactly for you (and me). Sucker Punch is a &ldquo;single-process Ruby asynchronous processing library&rdquo; built on top of Celluloid. Basically the gem allows you to asynchronously process tasks within a single Sinatra/Rails process without the need for a Redis server (works for small projects but don&rsquo;t rely on this for large scale applications).</p>
+
+<p>The gem is well documented and has a fairly straightforward API. Tasks that need to be processed asynchronously are wrapped in &ldquo;-Job&rdquo; object which respond to <code>#perform</code>.</p>
+
+<p>Here I create a Sucker Punch job to asynchronously handle the conversion of a PDF into a GIF:</p>
+
+<pre><code class="ruby">class DocprocessJob
+  include SuckerPunch::Job
+  def perform(document_object)
+    @pdf = document_object
+    @pdf.to_gif
+  end
+end
+</code></pre>
+
+<p>The Job is then queued by calling <code>#async</code> and <code>#perform</code> on the object:</p>
+
+<pre><code class="ruby">post '/' do
+    pdf = Document.new(params_file_path,params_size,params_interval)
+    @file_name = pdf.gif_file_name
+    DocprocessJob.new.async.perform(pdf)
+end
+</code></pre>
+
+<p>Now when a POST request is made (containing the uploaded PDF document) the <code>DocProcessJob</code> is queued to perform in the background while the main POST request can return a response to the client instantly.</p>
+
+<p>But now we have another problem. When the animated GIF is ready the connection to the client is closed. How can we alert the client that the conversion has finished?</p>
+
+<h2>&ldquo;Real Time Rack&rdquo; &amp; YouTube to the Rescue</h2>
+
+<p>Before this project my knowledge of real time HTTP responses was limited. Thankfully we live in a world where you can learn from the best software developers in the world by just search for a conference event on YouTube.</p>
+
+<p><a href="https://github.com/rkh">Konstantin Haase</a>, one of the core developers for Sinatra &amp; Rack, held a great talk called <a href="https://www.youtube.com/watch?v=R84ersKcKFc">&ldquo;Real Time Rack&rdquo;</a> at the 2011 Rocky Mountain Ruby Conference that covers streaming, Server-Sent Events, and WebSockets.</p>
+
+<p>As originally designed, HTTP never allowed for push-notifications from the server to the client. An HTTP request always begins with the client. But over time several clever developers have created different solutions to overcome this problem.</p>
+
+<p>Some solutions, like &ldquo;Long-Polling,&rdquo; hold the connection open after the client has made a request until the server is ready to &ldquo;push&rdquo; the data to the client.[2] This is not exactly a push-notification since the client&rsquo;s request is simply held idle until the server responds.</p>
+
+<p>More modern solutions implement &ldquo;Web Sockets,&rdquo; which use an independent protocol. Web Sockets provide &ldquo;a standardized way for the server to send content to the browser without being solicited by the client, and allowing for messages to be passed back and forth while keeping the connection open&rdquo;.[3]</p>
+
+<p>For the particular problem of notifying a user when a PDF file has been fully converted to an animated GIF I decided to use another alternative, <strong>Server-Sent Events</strong>.</p>
+
+<h2>Server-Sent Events</h2>
+
+<p>Server-Sent Events allow a server to send data to clients once an initial client connection has been established.[4] Unlike WebSockets, a Server-Sent Event is not bi-directional. The client cannot send messages to the server. But for my purposes this wasn&rsquo;t a problem.</p>
+
+<p>Creating a Server-Sent Event in Sinatra is surprisingly easy.</p>
+
+<p>First the client makes the initial connection to the server using the <code>EventSource()</code> JavaScript interface. Here the initial connection is made to the <code>/stream</code> route.</p>
+
+<pre><code class="javascript">var serverSentEvent = new EventSource('/stream');
+serverSentEvent.onmessage = function(e) {
+  alert(e.data);
+} 
+</code></pre>
+
+<p>Then, Sinatra detects the call to the <code>/stream</code> route and keeps this connection open for text-streaming.</p>
+
+<pre><code class="ruby">get '/stream/:file', provides: 'text/event-stream' do
+  stream(:keep_open) do |out|
+    connections &lt;&lt; out
+    FilecheckJob.new.async.perform(params[:file],out)
+
+    # purge dead connections
+    connections.reject!(&amp;:closed?)
+  end
+end
+</code></pre>
+
+<p>The <code>stream()</code> function is part of the vanilla Sinatra DSL.[5] The <code>out</code> variable stores the client&rsquo;s connection in an object. Like any other Ruby object this can be passed to other parts of the control flow. In this example I pass the client connection to the asynchronous <code>FilecheckJob</code> task.</p>
+
+<p>Once the <code>FilecheckJob</code> has completed – checking to see if the animated GIF has been placed in the <code>/complete</code> directory – the client&rsquo;s connection alerted through the <code>&lt;&lt;</code> method that sends the message <code>true</code> to the client.</p>
+
+<pre><code class="ruby">class FileCheck
+  def complete?
+    loop do
+      if File.exist?(@path)
+        @client &lt;&lt; "data: true\n\n"
+        break
+      end
+    end
+  end
+end
+</code></pre>
+
+<p>Once the message has been received by the client the Server-Sent Event is complete.</p>
+
+<p><strong>An important note!</strong> <code>WEBrick</code>, the default Ruby web server <strong>does not</strong> support Server-Sent Events. You must use <code>Thin</code> or <code>Rainbows</code>. Don&rsquo;t forget to explicitly instruct Heroku to use another server with a <code>Procfile</code>.</p>
+
+<h2>Conclusion</h2>
+
+<p>I&rsquo;m a strong believer in side projects. Even silly and seemingly useless side project have the potential to teach more than any structured class or professional assignment. My solutions and the final web app are far from perfect. But that&rsquo;s exactly the point. Side projects are sandboxes to develop raw and creative solutions. So that next time, when a project requires stable polish, I can look at a small side project for inspiration.</p>
+
+<p>All I wanted to do was to convert PDFs into animated GIFs and now I&rsquo;ve learned and implemented single-process asynchronous processing and server-sent events.</p>
+
+<p>Maybe I should have made a GIF about it&hellip;</p>
+
+<h2>References &amp; Notes</h2>
+
+<ul>
+<li>[1] <a href="https://devcenter.heroku.com/articles/error-codes#h12-request-timeout">Heroku - Error Code H12 Request timeout</a></li>
+<li>[2] <a href="https://en.wikipedia.org/wiki/Push_technology#Long_polling">Wikipedia - HTTP Long Polling</a></li>
+<li>[3] <a href="https://en.wikipedia.org/wiki/WebSocket">Wikipedia - WebSockets</a></li>
+<li>[4] <a href="https://en.wikipedia.org/wiki/Server-sent_events">Wikipedia - Server-Sent Events</a></li>
+<li>[5] <a href="http://www.sinatrarb.com/intro.html#Streaming%20Responses">Sinatra - Streaming Responses</a></li>
+</ul>
+
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Named Scopes in Rails]]></title>
@@ -438,7 +573,7 @@ Generally a Struct is manipulated by calling methods the same way a class or oth
 </span><span class='line'><span class="sr">end&lt;/</span><span class="nb">p</span><span class="o">&gt;</span>
 </span><span class='line'>
 </span><span class='line'><span class="o">&lt;</span><span class="nb">p</span><span class="o">&gt;</span><span class="n">email_account</span> <span class="o">=</span> <span class="no">Email</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="o">&amp;</span><span class="n">ldquo</span><span class="p">;</span><span class="n">walter</span> <span class="n">beller</span> <span class="n">morales</span><span class="o">&amp;</span><span class="n">rdquo</span><span class="p">;,</span><span class="o">&amp;</span><span class="n">ldquo</span><span class="p">;</span><span class="n">arpanet</span><span class="o">.</span><span class="n">com</span><span class="o">&amp;</span><span class="n">rdquo</span><span class="p">;)</span>
-</span><span class='line'><span class="n">email_account</span><span class="o">.</span><span class="n">address</span> <span class="c1">#=&gt; &amp;ldquo;&lt;a href=&quot;&amp;#x6d;&amp;#x61;&amp;#x69;&amp;#x6c;&amp;#116;&amp;#111;&amp;#58;&amp;#119;&amp;#x61;&amp;#x6c;&amp;#x74;&amp;#x65;&amp;#x72;&amp;#x5f;&amp;#x62;&amp;#x65;&amp;#x6c;&amp;#108;&amp;#101;&amp;#114;&amp;#x5f;&amp;#109;&amp;#x6f;&amp;#x72;&amp;#x61;&amp;#x6c;&amp;#101;&amp;#x73;&amp;#x40;&amp;#97;&amp;#114;&amp;#112;&amp;#x61;&amp;#110;&amp;#101;&amp;#x74;&amp;#46;&amp;#99;&amp;#x6f;&amp;#x6d;&quot;&gt;&amp;#x77;&amp;#97;&amp;#x6c;&amp;#116;&amp;#x65;&amp;#114;&amp;#x5f;&amp;#98;&amp;#101;&amp;#108;&amp;#x6c;&amp;#x65;&amp;#114;&amp;#95;&amp;#109;&amp;#x6f;&amp;#x72;&amp;#x61;&amp;#108;&amp;#101;&amp;#x73;&amp;#x40;&amp;#97;&amp;#114;&amp;#x70;&amp;#97;&amp;#110;&amp;#x65;&amp;#116;&amp;#x2e;&amp;#x63;&amp;#111;&amp;#109;&lt;/a&gt;&amp;rdquo;</span>
+</span><span class='line'><span class="n">email_account</span><span class="o">.</span><span class="n">address</span> <span class="c1">#=&gt; &amp;ldquo;&lt;a href=&quot;&amp;#109;&amp;#97;&amp;#105;&amp;#108;&amp;#116;&amp;#111;&amp;#58;&amp;#119;&amp;#x61;&amp;#x6c;&amp;#116;&amp;#101;&amp;#114;&amp;#95;&amp;#98;&amp;#x65;&amp;#108;&amp;#108;&amp;#x65;&amp;#x72;&amp;#95;&amp;#x6d;&amp;#111;&amp;#114;&amp;#x61;&amp;#x6c;&amp;#101;&amp;#115;&amp;#64;&amp;#x61;&amp;#114;&amp;#112;&amp;#x61;&amp;#110;&amp;#x65;&amp;#116;&amp;#46;&amp;#x63;&amp;#111;&amp;#x6d;&quot;&gt;&amp;#119;&amp;#97;&amp;#108;&amp;#x74;&amp;#101;&amp;#114;&amp;#95;&amp;#98;&amp;#101;&amp;#x6c;&amp;#108;&amp;#x65;&amp;#114;&amp;#95;&amp;#x6d;&amp;#x6f;&amp;#x72;&amp;#x61;&amp;#x6c;&amp;#101;&amp;#x73;&amp;#64;&amp;#97;&amp;#114;&amp;#112;&amp;#x61;&amp;#110;&amp;#x65;&amp;#116;&amp;#x2e;&amp;#99;&amp;#x6f;&amp;#x6d;&lt;/a&gt;&amp;rdquo;</span>
 </span></code></pre></td></tr></table></div></figure>
 Truly, Structs are a strange and powerful beast.</p>
 
@@ -497,116 +632,6 @@ struct:           4.270000   0.010000   4.280000    (4.285140)
 <li>[2] <a href="http://ruby-doc.org/core-2.2.0/Struct.html">Official Ruby Documentation (2.2.0) for the Struct class</a></li>
 <li>[3] <a href="http://stephaniehoh.github.io/blog/2013/12/28/the-ruby-struct-class/">Stephanie Oh (another great Flatiron School grad) wrote up a great overview of the Struct Class.</a></li>
 <li>[4] The comparison uses Ruby’s Benchmark library. I decided to set up the experiment to analyze the actual construction of an instance. The hash test builds an instance of the Hash class and the struct test build an instance of the specific Struct. This seems to mostly closely simulate normal use. An alternate setup iterating over the actual Struct construction would drastically reduce the speed advantage of Structs.</li>
-</ul>
-
-]]></content>
-  </entry>
-  
-  <entry>
-    <title type="html"><![CDATA[How Does .reduce(:+) Work?]]></title>
-    <link href="http://walterbm.github.io/blog/2015/06/11/how-does-reduce-plus-work/"/>
-    <updated>2015-06-11T02:12:20-04:00</updated>
-    <id>http://walterbm.github.io/blog/2015/06/11/how-does-reduce-plus-work</id>
-    <content type="html"><![CDATA[<p>How do you sum up all the elements of an array in Ruby?
-<code>ruby
-[1,2,3,4,5].reduce(:+) # =&gt; 15
-</code>
-That’s all you need. Simple and elegant. But how does this code actually work?</p>
-
-<p>Unpacking the logic of this tiny line of code require understanding blocks, procs, and the hidden power of symbols.</p>
-
-<h3>Breaking down .reduce</h3>
-
-<p>Without understanding <code>.reduce(:+)</code> a beginner like myself might use <code>.reduce</code> in this familiar implementation:
-<code>ruby
-[1,2,3,4,5].reduce(0) do |sum, element|
-    sum + element
-end # =&gt; 15
-</code>
-The process here is much easier to follow.</p>
-
-<ol>
-<li>the <code>[1,2,3,4,5]</code> array calls the <code>.reduce</code> method (or <code>.inject</code>, either method can be used interchangeably).</li>
-<li>the <code>.reduce</code> method (part of the Enumerable module in Ruby) allows all the elements of any enumerator object (array, hash, etc) to be combined by applying the logic specified in the block (everything between <code>do</code> and <code>end</code>).</li>
-<li>in the example above the block specifies that the elements should be added together through the logic in line 2: <code>sum  + element</code>.</li>
-</ol>
-
-
-<p>So we know Ruby is somehow converting the “plus symbol” into a complete block when <code>:+</code> is passed as an argument.</p>
-
-<p>Usually the argument for a <code>.reduce</code> method sets the initial value for the sum. For example <code>.reduce(11)</code> would start the sum from 11. However, a close reading of the Ruby Docs — all of Ruby’s juicy secrets are in the documentation — reveals that the <code>.reduce</code> method also accepts <em>symbols</em> as arguments.</p>
-
-<pre><code class="ruby">def reduce(starting_value_or_symbol)
-  case starting_value_or_symbol
-  when Symbol
-    # convert symbol into a method block
-  else
-    # regular reduce() process
-  end
-</code></pre>
-
-<p>When a symbol is passed as an argument then “each element in the collection will be passed to the named method.”[1] For our purposes the named method for the <code>:+</code> symbol is naturally the <code>.+</code> method.</p>
-
-<pre><code class="ruby">11.+(17) # =&gt; 28
-</code></pre>
-
-<p>This notation seems insane so lets create our own summation method to better illustrate the process call.</p>
-
-<pre><code class="ruby">def plus(first_number, second_number)
-    first_number + second_number
-end
-</code></pre>
-
-<p>So passing a <em>symbol</em> to <code>.reduce</code> effectively calls the method with the same name as the symbol. This explains why <code>:-</code> and <code>:*</code> also work.</p>
-
-<pre><code class="ruby">[1,2,3,4,5].reduce(:-) # =&gt; -13
-[1,2,3,4,5].reduce(:*) # =&gt; 120
-</code></pre>
-
-<p>But this is still not quite reaching the magic of <code>.reduce(:+)</code>. The <code>.reduce</code> method calls on the <code>.+</code> method but how does the <em>symbol</em> <code>:+</code> lead to the <code>.+</code> method?</p>
-
-<h3>The Secret Life of Objects</h3>
-
-<p>Turns out that symbols in Ruby live a secret life. Remove the suit and glasses and ordinary symbols become powerful <strong>Procs</strong> and <strong>Methods</strong>[2]. Ruby’s <code>.to_proc</code> method automatically converts any symbol into proc and <code>method(string_or_symbol)</code> looks up methods matching the string or symbol passes as an argument. Looked-up methods and procs are used directly through the <code>.call</code> method.</p>
-
-<p>So the hidden abstraction of the <code>.reduce</code> method goes through these steps:</p>
-
-<ol>
-<li>recognizes when a symbol is passed as an argument</li>
-<li>converts the symbol into a proc</li>
-<li>calls the proc on the elements of the enumerable.</li>
-</ol>
-
-
-<p>We can use another Enumerator method, like <code>.each</code>, to create an unnecessary code-sandwich that helps reveals the hidden conversion of symbols into procs and looked-up methods.</p>
-
-<pre><code class="ruby">symbol = :+
-sum = 0
-[1,2,3,4,5].each do |e|
-  proc_from_symbol = symbol.to_proc     # converts :+ into a proc
-  sum = proc_from_symbol.call(sum,e)    # calls the proc
-end
-sum # =&gt; 15
-</code></pre>
-
-<p>Or if we want to pass the <code>sum</code> method we created above.</p>
-
-<pre><code class="ruby">symbol = :plus  # reference to a custom ‘plus’ method
-sum = 0
-[1,2,3,4,5].each do |e|
-  lookup = method(symbol)   # looks-up a method matching :plus
-  sum = lookup.call(sum,e)  # calls the matching method
-end
-sum # =&gt; 15
-</code></pre>
-
-<h3>Quick and Easy</h3>
-
-<p>The mantra of the Ruby language is ‘quick and easy’ and <code>.reduce(:+)</code> is a brilliant line of code that perfectly encapsulates this mindset. Learning more about blocks, proc, and symbols unearths the incredibly power and flexibility of Ruby.</p>
-
-<ul>
-<li>[1] <a href="http://ruby-doc.org/core-2.2.0/Enumerable.html#method-i-reduce">Official Ruby Documentation (2.2.0) for the reduce method</a></li>
-<li>[2] <a href="http://awaxman11.github.io/blog/2013/08/05/what-is-the-difference-between-a-block/">Adam Waxman (fellow Flatiron School grad) wrote a great post on the differences between blocks, procs, and lambdas in Ruby</a></li>
 </ul>
 
 ]]></content>

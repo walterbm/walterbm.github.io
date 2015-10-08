@@ -1,0 +1,264 @@
+
+<!DOCTYPE HTML>
+<html>
+<head>
+	<meta charset="utf-8">
+	<title>Sinatra &amp; Server-Sent Events | WBM Blog</title>
+
+	<meta name="author" content="Walter Beller-Morales"> 
+	
+	<meta name="description" content="thoughts on law - engineering - and business"> <meta name="keywords" content="">
+
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+
+	<link href="/atom.xml" rel="alternate" title="WBM Blog" type="application/atom+xml">
+	<link rel="canonical" href="">
+	<link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+	<link href="/stylesheets/font-awesome.min.css" rel="stylesheet" type="text/css">
+	
+	<!--[if lt IE 9]><script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script><![endif]-->
+	
+</head>
+
+
+
+<body>
+	<header id="header"><div class="inner">
+  <ul class="navigation">
+    <li><a href="/"><h1>WBM</h1></a></li>
+      
+      
+    <li>
+      <a href="/" title="" class="is-selected" >Blog</a>
+    </li>
+    
+    <li>
+      <a href="/about" title=""  >About</a>
+    </li>
+    
+    <li><a href="http://github.com/walterbm" target="blank">Github</a></li>
+  </ul>
+</div> </header>
+
+	<div id="content" class="inner"><article class="post">
+	<h2 class="title">Sinatra &amp; Server-Sent Events</h2>
+	<div class="meta">
+		<div class="date">
+
+
+
+
+
+
+
+
+  
+
+
+
+<time datetime="2015-10-07T22:09:35-04:00" pubdate data-updated="true">Oct 7th, 2015</time></div>
+	</div>
+	<div class="entry-content"><p>Recently I finished a small and admittedly nonsensical side project of a web app that converts PDFs documents into animated GIFs. You can check it out at: <a href="http://doc2gif.xyz/">doc2gif.xyz</a>.</p>
+
+<p>Ever wanted to &ldquo;read&rdquo; <em>The Great Gatsby</em> in 30 seconds? Now you can!</p>
+
+<p><img class="center" src="/images/greatgatsby.gif" title="Old Sport!" ></p>
+
+<p>As silly as it seems the project actually helped me learn quite a lot about automated image manipulation (thank you Unix community for creating <a href="http://www.imagemagick.org/">ImageMagick</a>), asynchronous processing in Ruby, and HTTP 1.1 Server-Sent Events.</p>
+
+<p>In this post I&rsquo;ll focus mainly on the latter two; asynchronous processing and server-sent events.</p>
+
+<h2>Converting a 1000 page Document?</h2>
+
+<p>Let&rsquo;s say somebody wants to convert a PDF version of Infinite Jest into an animated GIFs (<em>why?</em> you ask&hellip;well why not? a GIF is not a deadly film cartridge after all). Converting all 1000 pages of the PDF into individual GIF frames is computationally very expensive and will slow down any server (especially a free-tier Heroku dyno).</p>
+
+<p>Now this creates a couple problems. Without a Sidekiq-type background worker the server will lock-up until the PDF conversion has finished. And if you are using Heroku, dyno&rsquo;s will terminate any HTTP request that takes longer than 30 seconds to complete.[1]</p>
+
+<h2>Asynchronous Processing &amp; Sucker Punch</h2>
+
+<p>The first problem seems easy enough to solve. Just start-up a Redis server and use a background worker to handle the image conversion. This is an excellent solution&hellip;unless you are cheap/broke and can&rsquo;t afford the hobby Heroku tier.</p>
+
+<p>Not to worry. The amazingly-named gem <a href="https://github.com/brandonhilkert/sucker_punch">Sucker-Punch</a> was made exactly for you (and me). Sucker Punch is a &ldquo;single-process Ruby asynchronous processing library&rdquo; built on top of Celluloid. Basically the gem allows you to asynchronously process tasks within a single Sinatra/Rails process without the need for a Redis server (works for small projects but don&rsquo;t rely on this for large scale applications).</p>
+
+<p>The gem is well documented and has a fairly straightforward API. Tasks that need to be processed asynchronously are wrapped in &ldquo;-Job&rdquo; object which respond to <code>#perform</code>.</p>
+
+<p>Here I create a Sucker Punch job to asynchronously handle the conversion of a PDF into a GIF:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">DocprocessJob</span>
+</span><span class='line'>  <span class="kp">include</span> <span class="no">SuckerPunch</span><span class="o">::</span><span class="no">Job</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">perform</span><span class="p">(</span><span class="n">document_object</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@pdf</span> <span class="o">=</span> <span class="n">document_object</span>
+</span><span class='line'>    <span class="vi">@pdf</span><span class="o">.</span><span class="n">to_gif</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The Job is then queued by calling <code>#async</code> and <code>#perform</code> on the object:</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">post</span> <span class="s1">&#39;/&#39;</span> <span class="k">do</span>
+</span><span class='line'>    <span class="n">pdf</span> <span class="o">=</span> <span class="no">Document</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="n">params_file_path</span><span class="p">,</span><span class="n">params_size</span><span class="p">,</span><span class="n">params_interval</span><span class="p">)</span>
+</span><span class='line'>    <span class="vi">@file_name</span> <span class="o">=</span> <span class="n">pdf</span><span class="o">.</span><span class="n">gif_file_name</span>
+</span><span class='line'>    <span class="no">DocprocessJob</span><span class="o">.</span><span class="n">new</span><span class="o">.</span><span class="n">async</span><span class="o">.</span><span class="n">perform</span><span class="p">(</span><span class="n">pdf</span><span class="p">)</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Now when a POST request is made (containing the uploaded PDF document) the <code>DocProcessJob</code> is queued to perform in the background while the main POST request can return a response to the client instantly.</p>
+
+<p>But now we have another problem. When the animated GIF is ready the connection to the client is closed. How can we alert the client that the conversion has finished?</p>
+
+<h2>&ldquo;Real Time Rack&rdquo; &amp; YouTube to the Rescue</h2>
+
+<p>Before this project my knowledge of real time HTTP responses was limited. Thankfully we live in a world where you can learn from the best software developers in the world by just search for a conference event on YouTube.</p>
+
+<p><a href="https://github.com/rkh">Konstantin Haase</a>, one of the core developers for Sinatra &amp; Rack, held a great talk called <a href="https://www.youtube.com/watch?v=R84ersKcKFc">&ldquo;Real Time Rack&rdquo;</a> at the 2011 Rocky Mountain Ruby Conference that covers streaming, Server-Sent Events, and WebSockets.</p>
+
+<p>As originally designed, HTTP never allowed for push-notifications from the server to the client. An HTTP request always begins with the client. But over time several clever developers have created different solutions to overcome this problem.</p>
+
+<p>Some solutions, like &ldquo;Long-Polling,&rdquo; hold the connection open after the client has made a request until the server is ready to &ldquo;push&rdquo; the data to the client.[2] This is not exactly a push-notification since the client&rsquo;s request is simply held idle until the server responds.</p>
+
+<p>More modern solutions implement &ldquo;Web Sockets,&rdquo; which use an independent protocol. Web Sockets provide &ldquo;a standardized way for the server to send content to the browser without being solicited by the client, and allowing for messages to be passed back and forth while keeping the connection open&rdquo;.[3]</p>
+
+<p>For the particular problem of notifying a user when a PDF file has been fully converted to an animated GIF I decided to use another alternative, <strong>Server-Sent Events</strong>.</p>
+
+<h2>Server-Sent Events</h2>
+
+<p>Server-Sent Events allow a server to send data to clients once an initial client connection has been established.[4] Unlike WebSockets, a Server-Sent Event is not bi-directional. The client cannot send messages to the server. But for my purposes this wasn&rsquo;t a problem.</p>
+
+<p>Creating a Server-Sent Event in Sinatra is surprisingly easy.</p>
+
+<p>First the client makes the initial connection to the server using the <code>EventSource()</code> JavaScript interface. Here the initial connection is made to the <code>/stream</code> route.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">serverSentEvent</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">EventSource</span><span class="p">(</span><span class="s1">&#39;/stream&#39;</span><span class="p">);</span>
+</span><span class='line'><span class="nx">serverSentEvent</span><span class="p">.</span><span class="nx">onmessage</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">e</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">alert</span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">data</span><span class="p">);</span>
+</span><span class='line'><span class="p">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Then, Sinatra detects the call to the <code>/stream</code> route and keeps this connection open for text-streaming.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="n">get</span> <span class="s1">&#39;/stream/:file&#39;</span><span class="p">,</span> <span class="ss">provides</span><span class="p">:</span> <span class="s1">&#39;text/event-stream&#39;</span> <span class="k">do</span>
+</span><span class='line'>  <span class="n">stream</span><span class="p">(</span><span class="ss">:keep_open</span><span class="p">)</span> <span class="k">do</span> <span class="o">|</span><span class="n">out</span><span class="o">|</span>
+</span><span class='line'>    <span class="n">connections</span> <span class="o">&lt;&lt;</span> <span class="n">out</span>
+</span><span class='line'>    <span class="no">FilecheckJob</span><span class="o">.</span><span class="n">new</span><span class="o">.</span><span class="n">async</span><span class="o">.</span><span class="n">perform</span><span class="p">(</span><span class="n">params</span><span class="o">[</span><span class="ss">:file</span><span class="o">]</span><span class="p">,</span><span class="n">out</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>    <span class="c1"># purge dead connections</span>
+</span><span class='line'>    <span class="n">connections</span><span class="o">.</span><span class="n">reject!</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:closed?</span><span class="p">)</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The <code>stream()</code> function is part of the vanilla Sinatra DSL.[5] The <code>out</code> variable stores the client&rsquo;s connection in an object. Like any other Ruby object this can be passed to other parts of the control flow. In this example I pass the client connection to the asynchronous <code>FilecheckJob</code> task.</p>
+
+<p>Once the <code>FilecheckJob</code> has completed – checking to see if the animated GIF has been placed in the <code>/complete</code> directory – the client&rsquo;s connection alerted through the <code>&lt;&lt;</code> method that sends the message <code>true</code> to the client.</p>
+
+<figure class='code'><figcaption><span></span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+</pre></td><td class='code'><pre><code class='ruby'><span class='line'><span class="k">class</span> <span class="nc">FileCheck</span>
+</span><span class='line'>  <span class="k">def</span> <span class="nf">complete?</span>
+</span><span class='line'>    <span class="kp">loop</span> <span class="k">do</span>
+</span><span class='line'>      <span class="k">if</span> <span class="no">File</span><span class="o">.</span><span class="n">exist?</span><span class="p">(</span><span class="vi">@path</span><span class="p">)</span>
+</span><span class='line'>        <span class="vi">@client</span> <span class="o">&lt;&lt;</span> <span class="s2">&quot;data: true</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+</span><span class='line'>        <span class="k">break</span>
+</span><span class='line'>      <span class="k">end</span>
+</span><span class='line'>    <span class="k">end</span>
+</span><span class='line'>  <span class="k">end</span>
+</span><span class='line'><span class="k">end</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Once the message has been received by the client the Server-Sent Event is complete.</p>
+
+<p><strong>An important note!</strong> <code>WEBrick</code>, the default Ruby web server <strong>does not</strong> support Server-Sent Events. You must use <code>Thin</code> or <code>Rainbows</code>. Don&rsquo;t forget to explicitly instruct Heroku to use another server with a <code>Procfile</code>.</p>
+
+<h2>Conclusion</h2>
+
+<p>I&rsquo;m a strong believer in side projects. Even silly and seemingly useless side project have the potential to teach more than any structured class or professional assignment. My solutions and the final web app are far from perfect. But that&rsquo;s exactly the point. Side projects are sandboxes to develop raw and creative solutions. So that next time, when a project requires stable polish, I can look at a small side project for inspiration.</p>
+
+<p>All I wanted to do was to convert PDFs into animated GIFs and now I&rsquo;ve learned and implemented single-process asynchronous processing and server-sent events.</p>
+
+<p>Maybe I should have made a GIF about it&hellip;</p>
+
+<h2>References &amp; Notes</h2>
+
+<ul>
+<li>[1] <a href="https://devcenter.heroku.com/articles/error-codes#h12-request-timeout">Heroku - Error Code H12 Request timeout</a></li>
+<li>[2] <a href="https://en.wikipedia.org/wiki/Push_technology#Long_polling">Wikipedia - HTTP Long Polling</a></li>
+<li>[3] <a href="https://en.wikipedia.org/wiki/WebSocket">Wikipedia - WebSockets</a></li>
+<li>[4] <a href="https://en.wikipedia.org/wiki/Server-sent_events">Wikipedia - Server-Sent Events</a></li>
+<li>[5] <a href="http://www.sinatrarb.com/intro.html#Streaming%20Responses">Sinatra - Streaming Responses</a></li>
+</ul>
+
+</div>
+
+
+<div class="sharing">
+  
+  
+  
+</div>
+</article>
+</div>
+	<footer id="footer" class="inner"><div class="aboutme">
+<hr>
+  <div class="profile">
+    <img class="icon" src="">
+
+    <h3>Walter Beller-Morales</h3>
+
+    <div class="codes">
+      <div class="github"><a href="https://github.com/walterbm">github.com/walterbm</a></div>
+    </div>
+  </div>
+
+  <div class="float_clear"></div>
+
+</div>
+Copyright &copy; 2015
+ Walter Beller-Morales 
+<br>
+Powered by Octopress.
+
+
+
+</footer>
+	
+
+</body>
+</html>
