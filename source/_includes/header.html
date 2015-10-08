@@ -1,1 +1,12 @@
-{% include custom/header.html %}
+<div class="inner">
+  <ul class="navigation">
+    <li><a href="{{ root_url }}/"><h1>WBM</h1></a></li>
+      {% assign url = page.url| remove:'index.html' | downcase | split: '/' %}
+      {% for link in page.navigation %}
+    <li>
+      <a href="/{{link.url}}" title="{{link.title}}" {% if url[1] == link.url or url[1] == link.layout %}class="is-selected"{% endif %} >{{link.text}}</a>
+    </li>
+    {% endfor %}
+    <li><a href="http://github.com/{{ site.github_user }}" target="blank">Github</a></li>
+  </ul>
+</div> 
